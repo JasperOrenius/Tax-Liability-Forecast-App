@@ -1,0 +1,43 @@
+﻿<Window x:Class="Tax_Liability_Forecast_App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Tax_Liability_Forecast_App"
+        xmlns:views="clr-namespace:Tax_Liability_Forecast_App.Views"
+        xmlns:viewmodels="clr-namespace:Tax_Liability_Forecast_App.ViewModels"
+        mc:Ignorable="d"
+        Title="MainWindow" 
+        SizeToContent="Manual" Width="1000" Height="600" MinWidth="915" MinHeight="500">
+    <Grid Background="#FF1C1C1C">
+        <Grid.Resources>
+            <DataTemplate DataType="{x:Type viewmodels:DashboardViewModel}">
+                <views:DashboardView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ClientsViewModel}">
+                <views:ClientsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:IncomeViewModel}">
+                <views:IncomeView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ExpensesViewModel}">
+                <views:ExpensesView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:TaxForecastViewModel}">
+                <views:TaxForecastView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:TaxSettingsViewModel}">
+                <views:TaxSettingsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type viewmodels:ReportsViewModel}">
+                <views:ReportsView/>
+            </DataTemplate>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <views:NavigationBarView Grid.Column="0" DataContext="{Binding NavigationBarViewModel}" HorizontalAlignment="Left"/>
+        <ContentControl Grid.Column="1" Content="{Binding CurrentViewModel}"/>
+    </Grid>
+</Window>
