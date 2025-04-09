@@ -7,6 +7,9 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Clients" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <DataGrid ItemsSource="{Binding Clients1}" Width="500" Height="300" HorizontalAlignment="Left" Margin="150,0,0,150"/>
+        <Button Content="Add" Width="50" Height="30" HorizontalAlignment="Left" Margin="480,185,0,0" Command="{Binding AddBtnClick}"/>
+        <Button Content="Edit" Width="50" Height="30" HorizontalAlignment="Left" Margin="540,185,0,0"/>
+        <Button Content="Delete" Width="50" Height="30" HorizontalAlignment="Left" Margin="600,185,0,0"/>
     </Grid>
 </UserControl>
