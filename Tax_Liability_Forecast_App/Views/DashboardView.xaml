@@ -4,9 +4,24 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
+             xmlns:Charts="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Dashboard" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="37*"/>
+            <RowDefinition Height="53*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Total income:" FontSize="20" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,40,0,0"/>
+        <TextBlock HorizontalAlignment="Left" Margin="20,80,0,0" Text="Expenses:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="20,120,0,0" Text="Estimated tax:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="20,160,0,0" Text="Next deadline:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="150,40,0,0" Text="0" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="120,80,0,0" Text="0" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="150,120,0,0" Text="0" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <TextBlock HorizontalAlignment="Left" Margin="160,160,0,0" Text="0" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
+        <Charts:PieChart Grid.Row="1"  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HoverPushOut="8"/>
+        
+        
     </Grid>
 </UserControl>
