@@ -45,7 +45,7 @@ namespace Tax_Liability_Forecast_App.Services
                     updatedTransaction.Date = transaction.Date;
                     updatedTransaction.Description = transaction.Description;
                     updatedTransaction.Amount = transaction.Amount;
-                    updatedTransaction.Category = transaction.Category;
+                    updatedTransaction.IncomeType = transaction.IncomeType;
                     updatedTransaction.Type = transaction.Type;
 
                     await context.SaveChangesAsync();

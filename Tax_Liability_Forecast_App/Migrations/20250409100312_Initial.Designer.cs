@@ -11,7 +11,7 @@ using Tax_Liability_Forecast_App.DbContexts;
 namespace Tax_Liability_Forecast_App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250409084321_Initial")]
+    [Migration("20250409100312_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -29,14 +29,14 @@ namespace Tax_Liability_Forecast_App.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Category")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("IncomeType")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

@@ -12,7 +12,7 @@ namespace Tax_Liability_Forecast_App.Models
         public DateTime Date {  get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
-        public string Category { get; set; }
+        public string IncomeType { get; set; }
         public TransactionType Type { get; set; }
     }
 
