@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tax_Liability_Forecast_App.Services;
 
 namespace Tax_Liability_Forecast_App.ViewModels
 {
@@ -14,7 +15,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         public NavigationBarViewModel NavigationBarViewModel { get; }
 
-        public MainViewModel(NavigationService navigationService)
+        public MainViewModel(NavigationService navigationService, IDatabaseService databaseService)
         {
             this.navigationService = navigationService;
             this.navigationService.CurrentViewModelChanged += OnCurrentViewModelChanged;
@@ -23,7 +24,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 navigationService,
                 () => new DashboardViewModel(),
                 () => new ClientsViewModel(),
-                () => new IncomeViewModel(),
+                () => new IncomeViewModel(databaseService),
                 () => new ExpensesViewModel(),
                 () => new TaxForecastViewModel(),
                 () => new TaxSettingsViewModel(),

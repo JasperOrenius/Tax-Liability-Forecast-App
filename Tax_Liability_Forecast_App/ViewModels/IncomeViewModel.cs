@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
+using Tax_Liability_Forecast_App.Services;
 
 namespace Tax_Liability_Forecast_App.ViewModels
 {
@@ -37,7 +38,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         public ICommand AddEntryCommand { get; }
 
-        public IncomeViewModel()
+        public IncomeViewModel(IDatabaseService databaseService)
         {
             AddEntryCommand = new RelayCommand(AddEntry);
         }
