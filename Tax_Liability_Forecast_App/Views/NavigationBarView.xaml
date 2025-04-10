@@ -7,6 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="200">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Style x:Key="NavigationButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="Foreground" Value="White"/>
@@ -87,6 +88,10 @@
             <Button Content="🗓 Tax Forecast" Style="{StaticResource NavigationButtonStyle}" Command="{Binding TaxForecast}"/>
             <Button Content="⚙️ Tax Settings" Style="{StaticResource NavigationButtonStyle}" Command="{Binding TaxSettings}"/>
             <Button Content="📝 Reports" Style="{StaticResource NavigationButtonStyle}" Command="{Binding Reports}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Bottom" Margin="10">
+            <TextBlock Text="Powered by Masscon" Foreground="White" FontSize="15" Visibility="{Binding IsExpanded, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <Image Source="/Images/masscon_logo.png" Width="25" Height="25" Margin="5,0,0,0"/>
         </StackPanel>
     </Grid>
 </UserControl>
