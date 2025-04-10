@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
@@ -14,6 +15,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
     public class ClientsViewModel : BaseViewModel
     {
         public ICommand AddBtnClick { get; }
+        public ICommand RemoveBtnClick { get; }
+        public ICommand EditBtnClick { get; }
 
         private ObservableCollection<Client> clients1 = new ObservableCollection<Client>();
         public ObservableCollection<Client> Clients1
@@ -28,22 +31,28 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private void FillList()
         {
-            for (int i = 0; i < 25; i++)
-            {
-                Clients1.Add(new Client { ClientID = i, Name = "JohnDoe" + i });
-            }
+            //for (int i = 0; i < 25; i++)
+            //{
+            //    Clients1.Add(new Client { ClientID = i, Name = "JohnDoe" + i });
+            //}
         }
 
         async Task AddToList()
         {
-            int index = Clients1.Count;
-            Clients1.Add(new Client { ClientID = index, Name = "JohnDoe" + index});
+            //int index = Clients1.Count;
+            //Clients1.Add(new Client { ClientID = index, Name = "JohnDoe" + index});
             
+        }
+
+        async Task RemoveBtnClickFunc()
+        {
+            //Clients1.Remove(Clients1[1]);
         }
 
         public ClientsViewModel()
         {
             AddBtnClick = new RelayCommand(AddToList);
+            RemoveBtnClick = new RelayCommand(RemoveBtnClickFunc);
             FillList();
         }
     }
