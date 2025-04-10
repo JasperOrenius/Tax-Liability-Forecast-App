@@ -8,5 +8,6 @@ namespace Tax_Liability_Forecast_App.DbContexts
         public AppDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<Client> Clients { get; set; }
     }
 }

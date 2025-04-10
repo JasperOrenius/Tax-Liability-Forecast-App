@@ -10,7 +10,7 @@ namespace Tax_Liability_Forecast_App.Models
     public class Transaction
     {
         [Key]
-        public Guid TransactionId { get; set; }
+        public Guid Id { get; set; }
         public DateTime Date {  get; set; }
         public string Description { get; set; }
         public decimal Amount { get; set; }
