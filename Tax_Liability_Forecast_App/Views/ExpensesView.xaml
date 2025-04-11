@@ -5,8 +5,79 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="550" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Expenses" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="0" Margin="10" ItemsSource="{Binding Expenses}">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Date" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock x:Name="tbDate" Text="{Binding Date, StringFormat=\{0:dd/MM/yyyy\}}"/>
+                                <DatePicker x:Name="dpDate" SelectedDate="{Binding Date, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter TargetName="tbDate" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="dpDate" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Description" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock x:Name="tbDescription" Text="{Binding Description}"/>
+                                <TextBox x:Name="txtDescription" Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter TargetName="tbDescription" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="txtDescription" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Amount" Width="*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <TextBlock x:Name="tbAmount" Text="{Binding Amount}"/>
+                                <TextBox x:Name="txtAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                            </Grid>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                    <Setter TargetName="tbAmount" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="txtAmount" Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Grid.Row="1" Margin="10">
+            <GroupBox Header="Add Expense" Foreground="White">
+                <StackPanel Margin="5">
+                    <TextBlock Text="Date:"/>
+                    <DatePicker Margin="0,0,0,10" SelectedDate="{Binding ExpenseDate}"/>
+
+                    <TextBlock Text="Description:"/>
+                    <TextBox Margin="0,0,0,10" Text="{Binding Description}"/>
+
+                    <TextBlock Text="Amount:"/>
+                    <TextBox Margin="0,0,0,15" Text="{Binding Amount}"/>
+
+                    <Button Content="Add Entry" Command="{Binding AddEntryCommand}"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
     </Grid>
 </UserControl>
