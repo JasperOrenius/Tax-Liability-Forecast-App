@@ -11,7 +11,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="0" Margin="10" ItemsSource="{Binding Transactions}">
+        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="0" Margin="10" ItemsSource="{Binding Incomes}">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Date" Width="*">
                     <DataGridTemplateColumn.CellTemplate>

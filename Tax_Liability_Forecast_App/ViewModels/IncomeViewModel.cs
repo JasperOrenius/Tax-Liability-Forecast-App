@@ -16,7 +16,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
     {
         private readonly IDatabaseService databaseService;
 
-        public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> Incomes { get; set; } = new ObservableCollection<Transaction>();
 
         public DateTime IncomeDate { get; set; } = DateTime.Today;
         public List<string> IncomeTypes { get; } = new List<string>
@@ -81,6 +81,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             SaveCommand = new TransactionCommand(SaveTransaction);
             DeleteCommand = new TransactionCommand(DeleteTransaction);
             LoadTransactions();
+            SelectedIncomeType = IncomeTypes[0];
         }
 
         private async Task AddEntry()
@@ -98,22 +99,23 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 Type = TransactionType.Income
             };
             await databaseService.CreateTransaction(newTransaction);
-            Transactions.Add(newTransaction);
+            Incomes.Add(newTransaction);
             Description = string.Empty;
             Amount = 0;
-            SelectedIncomeType = string.Empty;
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(Amount));
-            OnPropertyChanged(nameof(selectedIncomeType));
         }
 
         private async Task LoadTransactions()
         {
             var transactions = await databaseService.GetAllTransactions();
-            Transactions.Clear();
+            Incomes.Clear();
             foreach(var transaction in transactions)
             {
-                Transactions.Add(transaction);
+                if(transaction.Type == TransactionType.Income)
+                {
+                    Incomes.Add(transaction);
+                }
             }
         }
 
@@ -136,7 +138,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task DeleteTransaction(Transaction transaction)
         {
-            Transactions.Remove(transaction);
+            Incomes.Remove(transaction);
             await databaseService.DeleteTransaction(transaction);
             await LoadTransactions();
         }
