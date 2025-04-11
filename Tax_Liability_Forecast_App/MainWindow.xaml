@@ -7,7 +7,7 @@
         xmlns:views="clr-namespace:Tax_Liability_Forecast_App.Views"
         xmlns:viewmodels="clr-namespace:Tax_Liability_Forecast_App.ViewModels"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="Wery Epic Tax Evasion Application" 
         SizeToContent="Manual" Width="1000" Height="600" MinWidth="915" MinHeight="575">
     <Grid Background="#FF1C1C1C">
         <Grid.Resources>

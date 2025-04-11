@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using Tax_Liability_Forecast_App.DbContexts;
 using Tax_Liability_Forecast_App.Models;
 
@@ -59,6 +55,16 @@ namespace Tax_Liability_Forecast_App.Services
             {
                 context.Transactions.Remove(transaction);
                 await context.SaveChangesAsync();
+            }
+        }
+
+        //Client
+        public async Task<IEnumerable<Client>> FetchClientTable()
+        {
+            using(var context = dbContextFactory.CreateDbContext())
+            {
+                List<Client> result = await context.Clients.ToListAsync();
+                return result;
             }
         }
     }

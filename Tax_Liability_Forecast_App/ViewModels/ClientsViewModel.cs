@@ -9,11 +9,13 @@ using System.Windows;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
+using Tax_Liability_Forecast_App.Services;
 
 namespace Tax_Liability_Forecast_App.ViewModels
 {
     public class ClientsViewModel : BaseViewModel
     {
+        private readonly IDatabaseService databaseService;
         public ICommand AddBtnClick { get; }
         public ICommand RemoveBtnClick { get; }
         public ICommand EditBtnClick { get; }
@@ -29,31 +31,27 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private void FillList()
+        public ClientsViewModel(IDatabaseService databaseService)
         {
-            //for (int i = 0; i < 25; i++)
-            //{
-            //    Clients1.Add(new Client { ClientID = i, Name = "JohnDoe" + i });
-            //}
+            AddBtnClick = new RelayCommand(AddBtnClickFunc);
+            RemoveBtnClick = new RelayCommand(RemoveBtnClickFunc);
+            FetchTable();
         }
 
-        async Task AddToList()
+        private void FetchTable()
         {
-            //int index = Clients1.Count;
-            //Clients1.Add(new Client { ClientID = index, Name = "JohnDoe" + index});
+            //Clients1 = new ObservableCollection<Client>(databaseService.FetchClientTable());
+        }
+
+        async Task AddBtnClickFunc()
+        {
             
         }
 
         async Task RemoveBtnClickFunc()
         {
-            //Clients1.Remove(Clients1[1]);
-        }
+            
 
-        public ClientsViewModel()
-        {
-            AddBtnClick = new RelayCommand(AddToList);
-            RemoveBtnClick = new RelayCommand(RemoveBtnClickFunc);
-            FillList();
         }
     }
 }
