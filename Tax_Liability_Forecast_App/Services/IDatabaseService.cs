@@ -13,5 +13,9 @@ namespace Tax_Liability_Forecast_App.Services
         Task CreateTransaction(Transaction transaction);
         Task UpdateTransaction(Transaction transaction);
         Task DeleteTransaction(Transaction transaction);
+
+        //Client
+
+        Task <IEnumerable<Client>> FetchClientTable();
     }
 }
