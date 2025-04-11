@@ -105,7 +105,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(Amount));
             OnPropertyChanged(nameof(selectedIncomeType));
-            MessageBox.Show("Income added");
         }
 
         private async Task LoadTransactions()

@@ -50,7 +50,7 @@
                         <DataTemplate>
                             <Grid>
                                 <TextBlock x:Name="tbType" Text="{Binding IncomeType}"/>
-                                <TextBox x:Name="txtType" Text="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                <ComboBox x:Name="txtType" ItemsSource="{Binding DataContext.IncomeTypes, ElementName=RootGrid}" Text="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
                             </Grid>
                             <DataTemplate.Triggers>
                                 <DataTrigger Binding="{Binding IsEditing}" Value="True">
