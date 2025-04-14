@@ -52,11 +52,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
         }
 
         public ICommand AddEntryCommand { get; }
+        public ICommand EditCommand { get; }
+        public ICommand SaveCommand { get; }
+        public ICommand DeleteCommand { get; }
 
         public ExpensesViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
             AddEntryCommand = new RelayCommand(AddEntry);
+            EditCommand = new TransactionCommand(EditTransaction);
+            SaveCommand = new TransactionCommand(SaveTransaction);
+            DeleteCommand = new TransactionCommand(DeleteTransaction);
             LoadTransactions();
         }
 
