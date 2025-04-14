@@ -68,11 +68,20 @@ namespace Tax_Liability_Forecast_App.Services
             }
         }
 
-        public async Task AddRecordToClientTable(Client recordToAdd)
+        public async Task AddClient(Client recordToAdd)
         {
             using(var context = dbContextFactory.CreateDbContext())
             {
                 context.Clients.Add(recordToAdd);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task RemoveClient(Client clientToRemove)
+        {
+            using(var context = dbContextFactory.CreateDbContext())
+            {
+                context.Clients.Remove(clientToRemove);
                 await context.SaveChangesAsync();
             }
         }
