@@ -33,14 +33,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         public ClientsViewModel(IDatabaseService databaseService)
         {
+            this.databaseService = databaseService;
             AddBtnClick = new RelayCommand(AddBtnClickFunc);
             RemoveBtnClick = new RelayCommand(RemoveBtnClickFunc);
             FetchTable();
         }
 
-        private void FetchTable()
+        private async void FetchTable()
         {
-            //Clients1 = new ObservableCollection<Client>(databaseService.FetchClientTable());
+            Clients1.Clear();
+            var result = await databaseService.FetchClientTable();
+            Clients1 = new ObservableCollection<Client>(result);
         }
 
         async Task AddBtnClickFunc()
