@@ -28,7 +28,7 @@ namespace Tax_Liability_Forecast_App
             {
                 dbContext.Database.Migrate();
             }
-            navigationService.CurrentViewModel = new DashboardViewModel();
+            navigationService.CurrentViewModel = new DashboardViewModel(databaseService);
             MainWindow = new MainWindow()
             {
                 DataContext = new MainViewModel(navigationService, databaseService)
