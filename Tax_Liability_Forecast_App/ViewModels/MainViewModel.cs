@@ -22,7 +22,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
             NavigationBarViewModel = new NavigationBarViewModel(
                 navigationService,
-                () => new DashboardViewModel(),
+                () => new DashboardViewModel(databaseService),
                 () => new ClientsViewModel(databaseService),
                 () => new IncomeViewModel(databaseService),
                 () => new ExpensesViewModel(databaseService),
