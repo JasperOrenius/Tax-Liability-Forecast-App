@@ -18,5 +18,6 @@ namespace Tax_Liability_Forecast_App.Services
         //Client
 
         Task <IEnumerable<Client>> FetchClientTable();
+        Task AddRecordToClientTable(Client recordToAdd);
     }
 }

@@ -48,7 +48,9 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         async Task AddBtnClickFunc()
         {
-            
+            Client client = new Client() {Id = Guid.NewGuid(), Name = "John Doe", Email = "johndoe@gmial.com", PhoneNum = "1234567890" };
+            await databaseService.AddRecordToClientTable(client);
+            FetchTable();
         }
 
         async Task RemoveBtnClickFunc()
