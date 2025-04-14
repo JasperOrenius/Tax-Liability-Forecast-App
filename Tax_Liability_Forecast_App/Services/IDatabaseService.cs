@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,5 +18,7 @@ namespace Tax_Liability_Forecast_App.Services
         //Client
 
         Task <IEnumerable<Client>> FetchClientTable();
+        Task AddClient(Client recordToAdd);
+        Task RemoveClient(Client recordToRemove);
     }
 }
