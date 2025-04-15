@@ -7,6 +7,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <TextBlock Text="Reports" FontSize="40" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 10">
+            <TextBlock Text="Start Date:" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="0, 0, 10, 0"/>
+            <DatePicker Width="160" FontSize="18" VerticalAlignment="Center"/>
+            <TextBlock Text="End Date:" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="10, 0, 10, 0"/>
+            <DatePicker Width="160" FontSize="18" VerticalAlignment="Center"/>
+        </StackPanel>
     </Grid>
 </UserControl>
