@@ -1,11 +1,14 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
@@ -35,7 +38,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
         {
             this.databaseService = databaseService;
             AddBtnClick = new RelayCommand(AddBtnClickFunc);
-            RemoveBtnClick = new RelayCommand(RemoveBtnClickFunc);
+            RemoveBtnClick = new ClientCommand(RemoveBtnClickFunc);
+            EditBtnClick = new RelayCommand(EditBtnClickFunc);
             FetchTable();
         }
 
@@ -53,10 +57,15 @@ namespace Tax_Liability_Forecast_App.ViewModels
             FetchTable();
         }
 
-        async Task RemoveBtnClickFunc()
+        async Task RemoveBtnClickFunc(object sender, EventArgs e)
         {
             await databaseService.RemoveClient(Clients1[0]);
             FetchTable();
+        }
+
+        private async Task EditBtnClickFunc()
+        {
+            MessageBox.Show("salkjdlsa");
         }
     }
 }
