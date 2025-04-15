@@ -57,7 +57,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             FetchTable();
         }
 
-        async Task RemoveBtnClickFunc(object sender, EventArgs e)
+        async Task RemoveBtnClickFunc(Client client)
         {
             await databaseService.RemoveClient(Clients1[0]);
             FetchTable();
