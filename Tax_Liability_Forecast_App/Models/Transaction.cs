@@ -19,6 +19,9 @@ namespace Tax_Liability_Forecast_App.Models
         public string IncomeType { get; set; }
         public TransactionType Type { get; set; }
 
+        public Guid ClientId { get; set; }
+        public Client Client { get; set; }
+
         [NotMapped]
         private bool isEditing;
         [NotMapped]
