@@ -14,5 +14,7 @@ namespace Tax_Liability_Forecast_App.Models
         public string Name { get; set; }
         public string Email { get; set; }
         public string PhoneNum { get; set; }
+
+        public ICollection<Transaction> Transactions { get; set; }
     }
 }
