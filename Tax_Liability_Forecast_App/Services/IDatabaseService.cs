@@ -11,6 +11,7 @@ namespace Tax_Liability_Forecast_App.Services
     public interface IDatabaseService
     {
         Task<IEnumerable<Transaction>> GetAllTransactions();
+        Task<IEnumerable<Transaction>> GetTransactionsByClientId(Guid clientId);
         Task CreateTransaction(Transaction transaction);
         Task UpdateTransaction(Transaction transaction);
         Task DeleteTransaction(Transaction transaction);
