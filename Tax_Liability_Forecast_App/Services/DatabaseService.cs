@@ -22,6 +22,14 @@ namespace Tax_Liability_Forecast_App.Services
             }
         }
 
+        public async Task<IEnumerable<Transaction>> GetTransactionsByClientId(Guid clientId)
+        {
+            using(AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                return await context.Transactions.Where(t => t.ClientId == clientId).Include(t => t.Client).ToListAsync();
+            }
+        }
+
         public async Task CreateTransaction(Transaction transaction)
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())

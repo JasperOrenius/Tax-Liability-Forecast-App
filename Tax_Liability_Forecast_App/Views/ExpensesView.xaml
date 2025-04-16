@@ -8,10 +8,52 @@
              d:DesignHeight="550" d:DesignWidth="800">
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="0" Margin="10" ItemsSource="{Binding Expenses}">
+        <StackPanel Grid.Row="0" Margin="10">
+            <GroupBox Header="Add Income" Foreground="White">
+                <Grid Margin="5">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Client:" Grid.Row="0" Grid.Column="0" Margin="0,0,0,5"/>
+                    <TextBlock Text="Date:" Grid.Row="0" Grid.Column="1" Margin="0,0,0,5"/>
+
+                    <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}" DisplayMemberPath="Name"/>
+                    <DatePicker Grid.Row="1" Grid.Column="1" Margin="0,0,10,10" SelectedDate="{Binding ExpenseDate}"/>
+
+                    <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Description:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox Grid.Column="1" Text="{Binding Description}" HorizontalAlignment="Stretch" Margin="0,0,10,0"/>
+                    </Grid>
+
+                    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Amount:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Amount}"/>
+                    </Grid>
+                    <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Grid.Row="3" Grid.Column="2" Margin="5,5,10,5"/>
+                </Grid>
+            </GroupBox>
+        </StackPanel>
+        <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="1" Margin="10" ItemsSource="{Binding Expenses}">
             <DataGrid.Columns>
                 <DataGridTemplateColumn Header="Date" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
@@ -102,21 +144,5 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Grid.Row="1" Margin="10">
-            <GroupBox Header="Add Expense" Foreground="White">
-                <StackPanel Margin="5">
-                    <TextBlock Text="Date:"/>
-                    <DatePicker Margin="0,0,0,10" SelectedDate="{Binding ExpenseDate}"/>
-
-                    <TextBlock Text="Description:"/>
-                    <TextBox Margin="0,0,0,10" Text="{Binding Description}"/>
-
-                    <TextBlock Text="Amount:"/>
-                    <TextBox Margin="0,0,0,15" Text="{Binding Amount}"/>
-
-                    <Button Content="Add Entry" Command="{Binding AddEntryCommand}"/>
-                </StackPanel>
-            </GroupBox>
-        </StackPanel>
     </Grid>
 </UserControl>
