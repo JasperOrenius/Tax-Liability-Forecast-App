@@ -17,6 +17,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         private readonly IDatabaseService databaseService;
 
         public ObservableCollection<Transaction> Incomes { get; set; } = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> FilteredIncomes { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
 
         public DateTime IncomeDate { get; set; } = DateTime.Today;
@@ -77,7 +78,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 selectedClient = value;
                 OnPropertyChanged(nameof(SelectedClient));
-                LoadTransactions();
+                LoadIncomes();
+            }
+        }
+
+        private string searchText;
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                searchText = value;
+                OnPropertyChanged(nameof(SearchText));
+                FilterIncomes();
             }
         }
 
@@ -90,9 +103,9 @@ namespace Tax_Liability_Forecast_App.ViewModels
         {
             this.databaseService = databaseService;
             AddEntryCommand = new RelayCommand(AddEntry);
-            EditCommand = new TransactionCommand(EditTransaction);
-            SaveCommand = new TransactionCommand(SaveTransaction);
-            DeleteCommand = new TransactionCommand(DeleteTransaction);
+            EditCommand = new TransactionCommand(EditIncome);
+            SaveCommand = new TransactionCommand(SaveIncome);
+            DeleteCommand = new TransactionCommand(DeleteIncome);
             LoadClients();
             SelectedIncomeType = IncomeTypes[0];
         }
@@ -118,6 +131,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             Amount = 0;
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(Amount));
+            FilterIncomes();
         }
 
         private async Task LoadClients()
@@ -131,7 +145,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private async Task LoadTransactions()
+        private async Task LoadIncomes()
         {
             if (SelectedClient == null) return;
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
@@ -143,9 +157,20 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     Incomes.Add(transaction);
                 }
             }
+            FilterIncomes();
         }
 
-        private async Task EditTransaction(Transaction transaction)
+        private async Task FilterIncomes()
+        {
+            var filteredIncomes = Incomes.Where(i => string.IsNullOrWhiteSpace(SearchText) || i.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            FilteredIncomes.Clear();
+            foreach(var income in filteredIncomes)
+            {
+                FilteredIncomes.Add(income);
+            }
+        }
+
+        private async Task EditIncome(Transaction transaction)
         {
             if(EditingTransaction == null)
             {
@@ -154,19 +179,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private async Task SaveTransaction(Transaction transaction)
+        private async Task SaveIncome(Transaction transaction)
         {
             transaction.IsEditing = false;
             EditingTransaction = null;
             await databaseService.UpdateTransaction(transaction);
-            await LoadTransactions();
+            await LoadIncomes();
         }
 
-        private async Task DeleteTransaction(Transaction transaction)
+        private async Task DeleteIncome(Transaction transaction)
         {
             Incomes.Remove(transaction);
+            FilterIncomes();
             await databaseService.DeleteTransaction(transaction);
-            await LoadTransactions();
         }
     }
 }
