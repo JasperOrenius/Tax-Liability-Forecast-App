@@ -37,7 +37,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         public ClientsViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
-            AddBtnClick = new RelayCommand(AddBtnClickFunc);
+            AddBtnClick = new ClientCommand(AddBtnClickFunc);
             RemoveBtnClick = new ClientCommand(RemoveBtnClickFunc);
             EditBtnClick = new RelayCommand(EditBtnClickFunc);
             FetchTable();
@@ -50,22 +50,33 @@ namespace Tax_Liability_Forecast_App.ViewModels
             Clients1 = new ObservableCollection<Client>(result);
         }
 
-        async Task AddBtnClickFunc()
+        async Task AddBtnClickFunc(Client client)
         {
-            Client client = new Client() {Id = Guid.NewGuid(), Name = "John Doe", Email = "johndoe@gmial.com", PhoneNum = "1234567890" };
-            await databaseService.AddClient(client);
-            FetchTable();
+
+            //Client client = new Client() {Name = client1.Name, Email = client1.Email, PhoneNum = client1.PhoneNum };
+            client.Id = Guid.NewGuid();
+            var result = MessageBox.Show($"Are you sure that you want to add a new client with these values: \nID: {client.Id}\nName: {client.Name} Email: {client.Email} Phone number: {client.PhoneNum}", "Note!!!", MessageBoxButton.YesNo);
+            if (result == MessageBoxResult.Yes)
+            {
+                await databaseService.AddClient(client);
+                FetchTable();
+            }
+            else if (result == MessageBoxResult.No)
+            {
+                FetchTable();
+                return;
+            }
         }
 
         async Task RemoveBtnClickFunc(Client client)
         {
-            await databaseService.RemoveClient(Clients1[0]);
+            await databaseService.RemoveClient(client);
             FetchTable();
         }
 
         private async Task EditBtnClickFunc()
         {
-            MessageBox.Show("salkjdlsa");
+            FetchTable();
         }
     }
 }
