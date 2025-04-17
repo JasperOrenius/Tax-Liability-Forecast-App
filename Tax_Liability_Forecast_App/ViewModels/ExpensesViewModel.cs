@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
@@ -16,6 +17,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         private readonly IDatabaseService databaseService;
 
         public ObservableCollection<Transaction> Expenses { get; set; } = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> FilteredExpenses { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
 
         public DateTime ExpenseDate { get; set; } = DateTime.Today;
@@ -61,7 +63,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 selectedClient = value;
                 OnPropertyChanged(nameof(SelectedClient));
-                LoadTransactions();
+                LoadExpenses();
+            }
+        }
+
+        private string searchText;
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                searchText = value;
+                OnPropertyChanged(nameof(SearchText));
+                FilterExpenses();
             }
         }
 
@@ -74,9 +88,9 @@ namespace Tax_Liability_Forecast_App.ViewModels
         {
             this.databaseService = databaseService;
             AddEntryCommand = new RelayCommand(AddEntry);
-            EditCommand = new TransactionCommand(EditTransaction);
-            SaveCommand = new TransactionCommand(SaveTransaction);
-            DeleteCommand = new TransactionCommand(DeleteTransaction);
+            EditCommand = new TransactionCommand(EditExpense);
+            SaveCommand = new TransactionCommand(SaveExpense);
+            DeleteCommand = new TransactionCommand(DeleteExpense);
             LoadClients();
         }
 
@@ -114,7 +128,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private async Task LoadTransactions()
+        private async Task LoadExpenses()
         {
             if (SelectedClient == null) return;
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
@@ -126,9 +140,20 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     Expenses.Add(transaction);
                 }
             }
+            FilterExpenses();
         }
 
-        private async Task EditTransaction(Transaction transaction)
+        private async Task FilterExpenses()
+        {
+            var filteredExpenses = Expenses.Where(e => string.IsNullOrWhiteSpace(SearchText) || e.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
+            FilteredExpenses.Clear();
+            foreach (var expense in filteredExpenses)
+            {
+                FilteredExpenses.Add(expense);
+            }
+        }
+
+        private async Task EditExpense(Transaction transaction)
         {
             if (EditingTransaction == null)
             {
@@ -137,19 +162,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private async Task SaveTransaction(Transaction transaction)
+        private async Task SaveExpense(Transaction transaction)
         {
             transaction.IsEditing = false;
             EditingTransaction = null;
             await databaseService.UpdateTransaction(transaction);
-            await LoadTransactions();
+            await LoadExpenses();
         }
 
-        private async Task DeleteTransaction(Transaction transaction)
+        private async Task DeleteExpense(Transaction transaction)
         {
             Expenses.Remove(transaction);
+            FilterExpenses();
             await databaseService.DeleteTransaction(transaction);
-            await LoadTransactions();
         }
     }
 }
