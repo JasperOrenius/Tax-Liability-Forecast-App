@@ -68,7 +68,7 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" Width="200" Grid.Row="0" HorizontalAlignment="Left" Margin="10,0,0,0"/>
-            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="1" Margin="10" ItemsSource="{Binding FilteredExpenses}">
+            <DataGrid AutoGenerateColumns="False" CanUserAddRows="False" Grid.Row="1" Margin="10,5,10,10" ItemsSource="{Binding FilteredExpenses}">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Date" Width="*">
                         <DataGridTemplateColumn.CellTemplate>

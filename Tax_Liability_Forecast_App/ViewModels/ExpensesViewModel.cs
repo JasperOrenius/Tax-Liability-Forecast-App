@@ -115,6 +115,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             Amount = 0;
             OnPropertyChanged(nameof(Description));
             OnPropertyChanged(nameof(Amount));
+            FilterExpenses();
         }
 
         private async Task LoadClients()

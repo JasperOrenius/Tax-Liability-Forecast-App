@@ -6,16 +6,65 @@
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+    <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Margin="0, 0, 0, 10">
-            <TextBlock Text="Start Date:" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="0, 0, 10, 0"/>
-            <DatePicker Width="160" FontSize="18" VerticalAlignment="Center"/>
-            <TextBlock Text="End Date:" FontSize="20" Foreground="White" VerticalAlignment="Center" Margin="10, 0, 10, 0"/>
-            <DatePicker Width="160" FontSize="18" VerticalAlignment="Center"/>
-        </StackPanel>
+        <Grid Margin="10" Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,5">
+                <TextBlock Text="Start Date:" FontSize="16" Foreground="White" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                <DatePicker Width="160" FontSize="14" VerticalAlignment="Center"/>
+                <TextBlock Text="End Date:" FontSize="16" Foreground="White" VerticalAlignment="Center" Margin="10,0,5,0"/>
+                <DatePicker Width="160" FontSize="14" VerticalAlignment="Center"/>
+                <TextBlock Text="Client:" Foreground="White" VerticalAlignment="Center" FontSize="16" Margin="10,0,5,0"/>
+                <ComboBox MinWidth="120"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Grid.Row="1">
+                <TextBlock Text="Transaction Type:" VerticalAlignment="Center" Foreground="White" FontSize="16" Margin="0,0,5,0"/>
+                <ComboBox MinWidth="120"/>
+                <Button Content="Generate Report" Width="120" Margin="20,0,0,0"/>
+            </StackPanel>
+        </Grid>
+        <UniformGrid Columns="4" Grid.Row="1">
+            <Border Background="#2c3e50" Padding="10" CornerRadius="8" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="Total Income" Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text="9999 €" Foreground="White" FontSize="16"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#c0392b" Padding="10" CornerRadius="8" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="Total Expenses" Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text="9999 €" Foreground="White" FontSize="16"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#16a085" Padding="10" CornerRadius="8" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="Net Income" Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text="9999 €" Foreground="White" FontSize="16"/>
+                </StackPanel>
+            </Border>
+            <Border Background="#f39c12" Padding="10" CornerRadius="8" Margin="5">
+                <StackPanel>
+                    <TextBlock Text="Estimated Tax" Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text="9999 €" Foreground="White" FontSize="16"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+        <Grid Grid.Row="2">
+            
+        </Grid>
+        <DataGrid Grid.Row="3">
+            
+        </DataGrid>
+        <Button Grid.Row="4" Content="Export to PDF" Width="150" HorizontalAlignment="Left" Margin="0,10,0,0"/>
     </Grid>
 </UserControl>
