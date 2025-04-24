@@ -93,5 +93,49 @@ namespace Tax_Liability_Forecast_App.Services
                 await context.SaveChangesAsync();
             }
         }
+
+
+        //Tax Brackets
+        async Task<IEnumerable<TaxBracket>> IDatabaseService.FetchAllTaxBrackets()
+        {
+            using(AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                return await context.TaxBrackets.ToListAsync();
+            }
+        }
+
+        async Task IDatabaseService.CreateTaxBracket(TaxBracket taxBracket)
+        {
+            using(AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.TaxBrackets.Add(taxBracket);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        async Task IDatabaseService.UpdateTaxBracket(TaxBracket taxBracket)
+        {
+            using(AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                var updatedtaxBracket = await context.TaxBrackets.FindAsync(taxBracket.Id);
+                if(updatedtaxBracket != null)
+                {
+                    updatedtaxBracket.From = taxBracket.From;
+                    updatedtaxBracket.To = taxBracket.To;
+                    updatedtaxBracket.TaxRate = taxBracket.TaxRate;
+
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        async Task IDatabaseService.RemoveTaxBracket(TaxBracket taxBracket)
+        {
+            using(AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.TaxBrackets.Remove(taxBracket);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

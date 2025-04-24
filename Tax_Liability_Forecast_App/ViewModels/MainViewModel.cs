@@ -27,7 +27,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 () => new IncomeViewModel(databaseService),
                 () => new ExpensesViewModel(databaseService),
                 () => new TaxForecastViewModel(databaseService),
-                () => new TaxSettingsViewModel(),
+                () => new TaxSettingsViewModel(databaseService),
                 () => new ReportsViewModel()
                 );
         }

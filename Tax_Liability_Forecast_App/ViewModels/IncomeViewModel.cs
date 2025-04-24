@@ -190,9 +190,10 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task DeleteIncome(Transaction transaction)
         {
+            EditingTransaction = null;
             Incomes.Remove(transaction);
-            FilterIncomes();
             await databaseService.DeleteTransaction(transaction);
+            await FilterIncomes();
         }
     }
 }

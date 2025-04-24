@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
 
         <GroupBox Header="Tax Brackets" Foreground="White" Grid.Row="0" Margin="5">
-            <DataGrid ItemsSource="{Binding TaxBrackets}" AutoGenerateColumns="False" CanUserAddRows="True" IsReadOnly="False">
+            <DataGrid ItemsSource="{Binding TaxBrackets}" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="From" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
@@ -69,25 +69,16 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsNewItem}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
                                     <Button Content="Edit"  
                                             Command="{Binding DataContext.EditTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
-                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <DataTrigger Binding="{Binding CanDisplayNotEditing}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -96,46 +87,58 @@
                                     <Button Content="Save"  
                                             Command="{Binding DataContext.SaveTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                    <DataTrigger Binding="{Binding CanDisplayIsEditing}" Value="True">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="Delete" Command="{Binding DataContext.DeleteTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
+                                    <Button Content="Delete"
+                                            Command="{Binding DataContext.DeleteTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Add Bracket"
+                                            Command="{Binding DataContext.AddTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsNewItem}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <Button Content="Add Bracket" Command="{Binding DataContext.AddTaxBracketCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
 
         <GroupBox Header="Deduction Types" Foreground="White" Grid.Row="1" Margin="5">
-            <DataGrid ItemsSource="{Binding DeductionTypes}" AutoGenerateColumns="False" CanUserAddRows="True">
+            <DataGrid ItemsSource="{Binding DeductionTypes}" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Name" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
@@ -192,13 +195,13 @@
                                     <Button Content="Edit"  
                                             Command="{Binding DataContext.EditDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
-                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <DataTrigger Binding="{Binding CanDisplayNotEditing}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -207,45 +210,57 @@
                                     <Button Content="Save"  
                                             Command="{Binding DataContext.SaveDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                    <DataTrigger Binding="{Binding CanDisplayIsEditing}" Value="True">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="Delete" Command="{Binding DataContext.DeleteDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
+                                    <Button Content="Delete" 
+                                            Command="{Binding DataContext.DeleteDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            CommandParameter="{Binding}" Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Add Deduction" 
+                                            Command="{Binding DataContext.AddDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            CommandParameter="{Binding}" 
+                                            Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsDummy}" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <Button Content="Add Deduction" Command="{Binding DataContext.AddDeductionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
         </GroupBox>
 
         <GroupBox Header="Tax Deadlines" Foreground="White" Grid.Row="2" Margin="5">
-            <DataGrid ItemsSource="{Binding TaxDeadlines}" AutoGenerateColumns="False" CanUserAddRows="True">
+            <DataGrid ItemsSource="{Binding TaxDeadlines}" AutoGenerateColumns="False" CanUserAddRows="False">
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Period" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
@@ -286,13 +301,13 @@
                                     <Button Content="Edit"  
                                             Command="{Binding DataContext.EditDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
-                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <DataTrigger Binding="{Binding CanDisplayNotEditing}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -301,38 +316,51 @@
                                     <Button Content="Save"  
                                             Command="{Binding DataContext.SaveDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
                                             CommandParameter="{Binding}" 
-                                            Width="60" Margin="2">
+                                            Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                    <DataTrigger Binding="{Binding CanDisplayIsEditing}" Value="True">
                                                         <Setter Property="Visibility" Value="Visible"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Button.Style>
                                     </Button>
-                                    <Button Content="Delete" Command="{Binding DataContext.DeleteDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
+                                    <Button Content="Delete" 
+                                            Command="{Binding DataContext.DeleteDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            CommandParameter="{Binding}" 
+                                            Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="False">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Button Content="Add Deadline" 
+                                            Command="{Binding DataContext.AddDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" 
+                                            CommandParameter="{Binding}" 
+                                            Margin="2">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsEmpty}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                 </StackPanel>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
-                        <DataGridTemplateColumn.CellEditingTemplate>
-                            <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <StackPanel.Style>
-                                        <Style TargetType="StackPanel">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsDummy}" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </StackPanel.Style>
-                                    <Button Content="Add Deadline" Command="{Binding DataContext.AddDeadlineCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Margin="2"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellEditingTemplate>
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
