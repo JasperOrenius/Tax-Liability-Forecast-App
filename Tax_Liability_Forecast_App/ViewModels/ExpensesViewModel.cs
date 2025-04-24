@@ -174,9 +174,10 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task DeleteExpense(Transaction transaction)
         {
+            EditingTransaction = null;
             Expenses.Remove(transaction);
-            FilterExpenses();
             await databaseService.DeleteTransaction(transaction);
+            await FilterExpenses();
         }
     }
 }
