@@ -11,8 +11,8 @@ using Tax_Liability_Forecast_App.DbContexts;
 namespace Tax_Liability_Forecast_App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250415135830_AddClientTransactionConnection")]
-    partial class AddClientTransactionConnection
+    [Migration("20250424112121_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,65 @@ namespace Tax_Liability_Forecast_App.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("Tax_Liability_Forecast_App.Models.DeductionType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeductible")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeductionTypes");
+                });
+
+            modelBuilder.Entity("Tax_Liability_Forecast_App.Models.TaxBracket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("From")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("TaxRate")
+                        .HasColumnType("REAL");
+
+                    b.Property<decimal>("To")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaxBrackets");
+                });
+
+            modelBuilder.Entity("Tax_Liability_Forecast_App.Models.TaxDeadline", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("DueDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("TaxDeadlines");
                 });
 
             modelBuilder.Entity("Tax_Liability_Forecast_App.Models.Transaction", b =>

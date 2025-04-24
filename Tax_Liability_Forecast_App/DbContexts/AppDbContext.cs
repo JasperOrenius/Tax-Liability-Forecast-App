@@ -9,6 +9,9 @@ namespace Tax_Liability_Forecast_App.DbContexts
 
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Client> Clients { get; set; }
+        public DbSet<TaxBracket> TaxBrackets { get; set; }
+        public DbSet<DeductionType> DeductionTypes { get; set; }
+        public DbSet<TaxDeadline> TaxDeadlines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

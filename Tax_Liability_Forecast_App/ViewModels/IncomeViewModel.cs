@@ -118,6 +118,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
             var newTransaction = new Transaction
             {
+                Id = Guid.NewGuid(),
                 Date = IncomeDate,
                 Description = Description,
                 Amount = Amount,

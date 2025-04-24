@@ -123,9 +123,9 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <Button Content="Edit"  
-                            Command="{Binding DataContext.EditCommand, ElementName=RootGrid}" 
-                            CommandParameter="{Binding}" 
-                            Width="60" Margin="2">
+                                            Command="{Binding DataContext.EditCommand, ElementName=RootGrid}" 
+                                            CommandParameter="{Binding}" 
+                                            Width="60" Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Visibility" Value="Visible"/>
@@ -138,9 +138,9 @@
                                         </Button.Style>
                                     </Button>
                                     <Button Content="Save"  
-                            Command="{Binding DataContext.SaveCommand, ElementName=RootGrid}" 
-                            CommandParameter="{Binding}" 
-                            Width="60" Margin="2">
+                                            Command="{Binding DataContext.SaveCommand, ElementName=RootGrid}" 
+                                            CommandParameter="{Binding}" 
+                                            Width="60" Margin="2">
                                         <Button.Style>
                                             <Style TargetType="Button">
                                                 <Setter Property="Visibility" Value="Collapsed"/>
