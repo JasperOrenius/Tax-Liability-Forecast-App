@@ -17,10 +17,10 @@
 
         <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
             <TextBlock Text="Client:" Margin="5,5,0,5" Foreground="White"/>
-            <ComboBox Width="150" Margin="5"/>
+            <ComboBox ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}" DisplayMemberPath="Name" Width="150" Margin="5"/>
             <TextBlock Text="Year:" Margin="5,5,0,5" Foreground="White"/>
-            <ComboBox Width="150" Margin="5"/>
-            <Button Content="Generate Forecast" Margin="5"/>
+            <TextBox Text="{Binding Year}" Width="150" Margin="5"/>
+            <Button Content="Generate Forecast" Command="{Binding GenerateForecastCommand}" Margin="5"/>
         </StackPanel>
 
         <UniformGrid Grid.Row="1" Columns="4" Margin="0,10">

@@ -44,9 +44,9 @@ namespace Tax_Liability_Forecast_App.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    From = table.Column<decimal>(type: "TEXT", nullable: false),
-                    To = table.Column<decimal>(type: "TEXT", nullable: false),
-                    TaxRate = table.Column<double>(type: "REAL", nullable: false)
+                    MinIncome = table.Column<decimal>(type: "TEXT", nullable: false),
+                    MaxIncome = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TaxRate = table.Column<decimal>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {

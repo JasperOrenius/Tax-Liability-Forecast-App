@@ -67,13 +67,13 @@ namespace Tax_Liability_Forecast_App.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("From")
+                    b.Property<decimal>("MaxIncome")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("TaxRate")
-                        .HasColumnType("REAL");
+                    b.Property<decimal>("MinIncome")
+                        .HasColumnType("TEXT");
 
-                    b.Property<decimal>("To")
+                    b.Property<decimal>("TaxRate")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");

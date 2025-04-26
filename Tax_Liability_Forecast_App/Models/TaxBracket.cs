@@ -14,9 +14,9 @@ namespace Tax_Liability_Forecast_App.Models
     {
         [Key]
         public Guid Id { get; set; }
-        public decimal From { get; set; }
-        public decimal To { get; set; }
-        public double TaxRate { get; set; }
+        public decimal MinIncome { get; set; }
+        public decimal MaxIncome { get; set; }
+        public decimal TaxRate { get; set; }
 
         [NotMapped]
         public bool IsEmpty { get; set; }
