@@ -3,10 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
+             xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views" 
+             xmlns:utils="clr-namespace:Tax_Liability_Forecast_App.Utils"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-
+    <UserControl.Resources>
+        <utils:DecimalConverter x:Key="DecimalConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -21,8 +24,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock x:Name="tbFrom" Text="{Binding From}"/>
-                                    <TextBox x:Name="dpFrom" Text="{Binding From, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="tbFrom" Text="{Binding MinIncome}"/>
+                                    <TextBox x:Name="dpFrom" Text="{Binding MinIncome, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -37,8 +40,8 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock x:Name="tbTo" Text="{Binding To}"/>
-                                    <TextBox x:Name="dpTo" Text="{Binding To, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="tbTo" Text="{Binding MaxIncome}"/>
+                                    <TextBox x:Name="dpTo" Text="{Binding MaxIncome, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -54,7 +57,7 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock x:Name="tbRate" Text="{Binding TaxRate}"/>
-                                    <TextBox x:Name="dpRate" Text="{Binding TaxRate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBox x:Name="dpRate" Text="{Binding TaxRate, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -161,7 +164,7 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock x:Name="tbAmount" Text="{Binding Amount}"/>
-                                    <TextBox x:Name="dpAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBox x:Name="dpAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">

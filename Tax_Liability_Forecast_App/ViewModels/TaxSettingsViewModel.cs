@@ -99,7 +99,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         async Task AddTaxBracket(TaxBracket taxBracket)
         {
-            if (taxBracket.From > taxBracket.To || taxBracket.TaxRate is < 0 or > 100) return;
+            if (taxBracket.MinIncome > taxBracket.MaxIncome || taxBracket.TaxRate is < 0 or > 100) return;
             var empty = TaxBrackets.FirstOrDefault(t => t.IsEmpty);
             if(empty != null)
             {
@@ -108,8 +108,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
             var newBracket = new TaxBracket
             {
                 Id = Guid.NewGuid(),
-                From = taxBracket.From,
-                To = taxBracket.To,
+                MinIncome = taxBracket.MinIncome,
+                MaxIncome = taxBracket.MaxIncome,
                 TaxRate = taxBracket.TaxRate,
                 IsEmpty = false,
             };

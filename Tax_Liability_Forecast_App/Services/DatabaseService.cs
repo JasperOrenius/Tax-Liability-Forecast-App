@@ -120,8 +120,8 @@ namespace Tax_Liability_Forecast_App.Services
                 var updatedtaxBracket = await context.TaxBrackets.FindAsync(taxBracket.Id);
                 if(updatedtaxBracket != null)
                 {
-                    updatedtaxBracket.From = taxBracket.From;
-                    updatedtaxBracket.To = taxBracket.To;
+                    updatedtaxBracket.MinIncome = taxBracket.MinIncome;
+                    updatedtaxBracket.MaxIncome = taxBracket.MaxIncome;
                     updatedtaxBracket.TaxRate = taxBracket.TaxRate;
 
                     await context.SaveChangesAsync();
