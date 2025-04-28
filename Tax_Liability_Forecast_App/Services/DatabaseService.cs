@@ -96,7 +96,7 @@ namespace Tax_Liability_Forecast_App.Services
 
 
         //Tax Brackets
-        async Task<IEnumerable<TaxBracket>> IDatabaseService.FetchAllTaxBrackets()
+        public async Task<IEnumerable<TaxBracket>> FetchAllTaxBrackets()
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
@@ -104,7 +104,7 @@ namespace Tax_Liability_Forecast_App.Services
             }
         }
 
-        async Task IDatabaseService.CreateTaxBracket(TaxBracket taxBracket)
+        public async Task CreateTaxBracket(TaxBracket taxBracket)
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
@@ -113,7 +113,7 @@ namespace Tax_Liability_Forecast_App.Services
             }
         }
 
-        async Task IDatabaseService.UpdateTaxBracket(TaxBracket taxBracket)
+        public async Task UpdateTaxBracket(TaxBracket taxBracket)
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
@@ -129,11 +129,96 @@ namespace Tax_Liability_Forecast_App.Services
             }
         }
 
-        async Task IDatabaseService.RemoveTaxBracket(TaxBracket taxBracket)
+        public async Task RemoveTaxBracket(TaxBracket taxBracket)
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
                 context.TaxBrackets.Remove(taxBracket);
+                await context.SaveChangesAsync();
+            }
+        }
+
+
+        //DeductionTypes
+        public async Task<IEnumerable<DeductionType>> FetchAllDeductionTypes()
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                return await context.DeductionTypes.ToListAsync();
+            }
+        }
+
+        public async Task CreateDeductionType(DeductionType deductionType)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.DeductionTypes.Add(deductionType);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateDeductionType(DeductionType deductionType)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                var updatedDeductionType = await context.DeductionTypes.FindAsync(deductionType.Id);
+                if (updatedDeductionType != null)
+                {
+                    updatedDeductionType.Name = deductionType.Name;
+                    updatedDeductionType.Amount = deductionType.Amount;
+                    updatedDeductionType.IsDeductible = deductionType.IsDeductible;
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task RemoveDeductionType(DeductionType deductionType)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.DeductionTypes.Remove(deductionType);
+                await context.SaveChangesAsync();
+            }
+        }
+
+
+        //Tax DeadLines
+        public async Task<IEnumerable<TaxDeadline>> FetchAllTaxDeadLines()
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                return await context.TaxDeadlines.ToListAsync();
+            }
+        }
+
+        public async Task CreateTaxDeadLine(TaxDeadline taxDeadline)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.TaxDeadlines.Add(taxDeadline);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateTaxDeadLine(TaxDeadline taxDeadline)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                var updatedDeadLine = await context.TaxDeadlines.FindAsync(taxDeadline.Id);
+                if (updatedDeadLine != null)
+                {
+                    updatedDeadLine.Period = updatedDeadLine.Period;
+                    updatedDeadLine.DueDate = updatedDeadLine.DueDate;
+                    await context.SaveChangesAsync();
+                }
+            }
+        }
+
+        public async Task RemoveTaxDeadLine(TaxDeadline taxDeadline)
+        {
+            using (AppDbContext context = dbContextFactory.CreateDbContext())
+            {
+                context.TaxDeadlines.Remove(taxDeadline);
                 await context.SaveChangesAsync();
             }
         }

@@ -26,5 +26,17 @@ namespace Tax_Liability_Forecast_App.Services
         Task CreateTaxBracket(TaxBracket taxBracket);
         Task UpdateTaxBracket(TaxBracket taxBracket);
         Task RemoveTaxBracket(TaxBracket taxBracket);
+
+        //Deduction Type
+        Task<IEnumerable<DeductionType>> FetchAllDeductionTypes();
+        Task CreateDeductionType(DeductionType deductionType);
+        Task UpdateDeductionType(DeductionType deductionType);
+        Task RemoveDeductionType(DeductionType deductionType);
+
+        //Tax Deadline
+        Task<IEnumerable<TaxDeadline>> FetchAllTaxDeadLines();
+        Task CreateTaxDeadLine(TaxDeadline taxDeadline);
+        Task UpdateTaxDeadLine(TaxDeadline taxDeadline);
+        Task RemoveTaxDeadLine(TaxDeadline taxDeadline);
     }
 }
