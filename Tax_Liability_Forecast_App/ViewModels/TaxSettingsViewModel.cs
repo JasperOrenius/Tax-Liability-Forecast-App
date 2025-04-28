@@ -12,8 +12,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
     {
         private readonly IDatabaseService databaseService;
 
-        public ICommand SaveCommand { get; }
-        public ICommand DeleteCommand { get; }
         public ObservableCollection<TaxBracket> TaxBrackets { get; set; } = new ObservableCollection<TaxBracket>();
         public ObservableCollection<DeductionType> DeductionTypes { get; set; } = new ObservableCollection<DeductionType>();
         public ObservableCollection<TaxDeadline> TaxDeadlines { get; set; } = new ObservableCollection<TaxDeadline>();
@@ -44,28 +42,28 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 OnPropertyChanged(nameof(EditingTaxBracket));
             }
         }
-
-        public List<string> taxDeductionList = new List<string>
+        private DeductionType? editingDeductionType;
+        private DeductionType? EditingDeductionType
         {
-            "Työmatkakulut",
-            "Kotitalousvähennys",
-            "Tulonhankkimisvähennys",
-            "Asunnon ja työpaikan välinen matka",
-            "Opintolainavähennys",
-            "Ansiotulovähennys",
-            "Elatusvelvollisuusvähennys",
-            "Jäsenmaksut",
-            "Lahjoitusvähennys"
-        };
-        public List<string> TaxDeductionList
-        {
-            get => taxDeductionList;
+            get => editingDeductionType;
             set
             {
-                taxDeductionList = value;
-                OnPropertyChanged(nameof(TaxDeductionList));
+                editingDeductionType = value;
+                OnPropertyChanged(nameof(EditingDeductionType));
             }
         }
+
+        private TaxDeadline? editingTaxDeadLine;
+        private TaxDeadline? EditingTaxDeadLine
+        {
+            get => editingTaxDeadLine;
+            set
+            {
+                editingTaxDeadLine = value;
+                OnPropertyChanged(nameof(EditingTaxDeadLine));
+            }
+        }
+
 
         public TaxSettingsViewModel(IDatabaseService databaseService)
         {
@@ -80,12 +78,22 @@ namespace Tax_Liability_Forecast_App.ViewModels
         private async Task LoadRows()
         {
             var taxBrackets = await databaseService.FetchAllTaxBrackets();
+            var deductionTypes = await databaseService.FetchAllDeductionTypes();
+            var taxDeadLines = await databaseService.FetchAllTaxDeadLines();
             TaxBrackets.Clear();
             DeductionTypes.Clear();
             TaxDeadlines.Clear();
             foreach(var bracket in taxBrackets)
             {
                 TaxBrackets.Add(bracket);
+            }
+            foreach(var bracket in deductionTypes)
+            {
+                DeductionTypes.Add(bracket);
+            }
+            foreach(var bracket in taxDeadLines)
+            {
+                TaxDeadlines.Add(bracket);
             }
             AddEmptyRows();
         }
@@ -141,6 +149,26 @@ namespace Tax_Liability_Forecast_App.ViewModels
             TaxBrackets.Remove(taxBracket);
             await databaseService.RemoveTaxBracket(taxBracket);
             await LoadRows();
+        }
+        async Task AddDeductionTypes(DeductionType deductionType)
+        {
+            if (deductionType.Amount < 0) return;
+            var empty = DeductionTypes.FirstOrDefault(t => t.IsEmpty);
+            if (empty != null)
+            {
+                DeductionTypes.Remove(empty);
+            }
+            var newDeduction = new DeductionType
+            {
+                Id = Guid.NewGuid(),
+                Name = deductionType.Name,
+                Amount = deductionType.Amount,
+                IsDeductible = deductionType.IsDeductible,
+                IsEmpty = false
+            };
+            await databaseService.CreateDeductionType(newDeduction);
+            DeductionTypes.Add(newDeduction);
+            DeductionTypes.Add(new DeductionType { IsEmpty = true });
         }
     }
 }
