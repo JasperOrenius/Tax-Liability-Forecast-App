@@ -72,6 +72,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
             EditTaxBracketCommand = new TaxBracketCommand(EditTaxBracket);
             SaveTaxBracketCommand = new TaxBracketCommand(SaveTaxBracket);
             DeleteTaxBracketCommand = new TaxBracketCommand(DeleteTaxBracket);
+
+            AddDeductionCommand = new DeductionTypeCommand(AddDeductionTypes);
+            EditDeductionCommand = new DeductionTypeCommand(EditDeductionTypes);
+            SaveDeductionCommand = new DeductionTypeCommand(SaveDeductionTypes);
+            DeleteDeductionCommand = new DeductionTypeCommand(DeleteDeductionTypes);
+
+            AddDeadlineCommand = new TaxDeadlineCommand(AddTaxDeadline);
+            EditDeadlineCommand = new TaxDeadlineCommand(EditTaxDeadline);
+            SaveDeadlineCommand = new TaxDeadlineCommand(SaveTaxDeadLine);
+            DeleteDeadlineCommand = new TaxDeadlineCommand(DeleteTaxDeadline);
+            
             LoadRows();
         }
 
@@ -152,7 +163,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         }
         async Task AddDeductionTypes(DeductionType deductionType)
         {
-            if (deductionType.Amount < 0) return;
+            if (deductionType.Amount < 0 || deductionType.Name == null) return;
             var empty = DeductionTypes.FirstOrDefault(t => t.IsEmpty);
             if (empty != null)
             {
@@ -170,5 +181,73 @@ namespace Tax_Liability_Forecast_App.ViewModels
             DeductionTypes.Add(newDeduction);
             DeductionTypes.Add(new DeductionType { IsEmpty = true });
         }
+        async Task EditDeductionTypes(DeductionType deductionType)
+        {
+            if(editingDeductionType == null)
+            {
+                deductionType.IsEditing = true;
+                EditingDeductionType = deductionType;
+            }
+        }
+        async Task SaveDeductionTypes(DeductionType deductionType)
+        {
+            deductionType.IsEditing = false;
+            EditingDeductionType = null;
+            await databaseService.UpdateDeductionType(deductionType);
+            await LoadRows();
+
+        }
+        async Task DeleteDeductionTypes(DeductionType deductionType)
+        {
+            EditingDeductionType = null;
+            DeductionTypes.Remove(deductionType);
+            await databaseService.RemoveDeductionType(deductionType);
+            await LoadRows();
+        }
+
+        async Task AddTaxDeadline(TaxDeadline taxDeadline)
+        {
+            if (taxDeadline.Period == null) return;
+            var empty = TaxDeadlines.FirstOrDefault(t => t.IsEmpty);
+            if(empty != null)
+            {
+                TaxDeadlines.Remove(empty);
+                var newDeadline = new TaxDeadline
+                {
+                    Id = Guid.NewGuid(),
+                    DueDate = taxDeadline.DueDate,
+                    Period = taxDeadline.Period,
+                    IsEmpty = false
+                };
+                await databaseService.CreateTaxDeadLine(newDeadline);
+                TaxDeadlines.Add(newDeadline);
+                TaxDeadlines.Add(new TaxDeadline { IsEmpty = true });
+
+            }
+        }
+        async Task EditTaxDeadline(TaxDeadline taxDeadline)
+        {
+            if (editingTaxDeadLine == null)
+            {
+                taxDeadline.IsEditing = true;
+                EditingTaxDeadLine = taxDeadline;
+            }
+        }
+        async Task SaveTaxDeadLine(TaxDeadline taxDeadline)
+        {
+            taxDeadline.IsEditing = false;
+            EditingTaxDeadLine = null;
+            await databaseService.UpdateTaxDeadLine(taxDeadline);
+            await LoadRows();
+
+        }
+        async Task DeleteTaxDeadline(TaxDeadline taxDeadline)
+        {
+            EditingTaxDeadLine = null;
+            TaxDeadlines.Remove(taxDeadline);
+            await databaseService.RemoveTaxDeadLine(taxDeadline);
+            await LoadRows();
+        }
     }
+
 }
