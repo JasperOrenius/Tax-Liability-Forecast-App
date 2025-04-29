@@ -72,6 +72,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
             EditTaxBracketCommand = new TaxBracketCommand(EditTaxBracket);
             SaveTaxBracketCommand = new TaxBracketCommand(SaveTaxBracket);
             DeleteTaxBracketCommand = new TaxBracketCommand(DeleteTaxBracket);
+
+            AddDeductionCommand = new DeductionTypeCommand(AddDeductionTypes);
+            EditDeductionCommand = new DeductionTypeCommand(EditDeductionTypes);
+            SaveDeductionCommand = new DeductionTypeCommand(SaveDeductionTypes);
+            DeleteDeductionCommand = new DeductionTypeCommand(DeleteDeductionTypes);
             LoadRows();
         }
 
@@ -152,7 +157,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         }
         async Task AddDeductionTypes(DeductionType deductionType)
         {
-            if (deductionType.Amount < 0) return;
+            if (deductionType.Amount < 0 || deductionType.Name == null) return;
             var empty = DeductionTypes.FirstOrDefault(t => t.IsEmpty);
             if (empty != null)
             {
@@ -169,6 +174,29 @@ namespace Tax_Liability_Forecast_App.ViewModels
             await databaseService.CreateDeductionType(newDeduction);
             DeductionTypes.Add(newDeduction);
             DeductionTypes.Add(new DeductionType { IsEmpty = true });
+        }
+        async Task EditDeductionTypes(DeductionType deductionType)
+        {
+            if(editingDeductionType == null)
+            {
+                deductionType.IsEditing = true;
+                EditingDeductionType = deductionType;
+            }
+        }
+        async Task SaveDeductionTypes(DeductionType deductionType)
+        {
+            deductionType.IsEditing = false;
+            EditingDeductionType = null;
+            await databaseService.UpdateDeductionType(deductionType);
+            await LoadRows();
+
+        }
+        async Task DeleteDeductionTypes(DeductionType deductionType)
+        {
+            EditingDeductionType = null;
+            DeductionTypes.Remove(deductionType);
+            await databaseService.RemoveDeductionType(deductionType);
+            await LoadRows();
         }
     }
 }
