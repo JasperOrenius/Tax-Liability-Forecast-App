@@ -77,6 +77,12 @@ namespace Tax_Liability_Forecast_App.ViewModels
             EditDeductionCommand = new DeductionTypeCommand(EditDeductionTypes);
             SaveDeductionCommand = new DeductionTypeCommand(SaveDeductionTypes);
             DeleteDeductionCommand = new DeductionTypeCommand(DeleteDeductionTypes);
+
+            AddDeadlineCommand = new TaxDeadlineCommand(AddTaxDeadline);
+            EditDeadlineCommand = new TaxDeadlineCommand(EditTaxDeadline);
+            SaveDeadlineCommand = new TaxDeadlineCommand(SaveTaxDeadLine);
+            DeleteDeadlineCommand = new TaxDeadlineCommand(DeleteTaxDeadline);
+            
             LoadRows();
         }
 
@@ -198,5 +204,50 @@ namespace Tax_Liability_Forecast_App.ViewModels
             await databaseService.RemoveDeductionType(deductionType);
             await LoadRows();
         }
+
+        async Task AddTaxDeadline(TaxDeadline taxDeadline)
+        {
+            if (taxDeadline.Period == null) return;
+            var empty = TaxDeadlines.FirstOrDefault(t => t.IsEmpty);
+            if(empty != null)
+            {
+                TaxDeadlines.Remove(empty);
+                var newDeadline = new TaxDeadline
+                {
+                    Id = Guid.NewGuid(),
+                    DueDate = taxDeadline.DueDate,
+                    Period = taxDeadline.Period,
+                    IsEmpty = false
+                };
+                await databaseService.CreateTaxDeadLine(newDeadline);
+                TaxDeadlines.Add(newDeadline);
+                TaxDeadlines.Add(new TaxDeadline { IsEmpty = true });
+
+            }
+        }
+        async Task EditTaxDeadline(TaxDeadline taxDeadline)
+        {
+            if (editingTaxDeadLine == null)
+            {
+                taxDeadline.IsEditing = true;
+                EditingTaxDeadLine = taxDeadline;
+            }
+        }
+        async Task SaveTaxDeadLine(TaxDeadline taxDeadline)
+        {
+            taxDeadline.IsEditing = false;
+            EditingTaxDeadLine = null;
+            await databaseService.UpdateTaxDeadLine(taxDeadline);
+            await LoadRows();
+
+        }
+        async Task DeleteTaxDeadline(TaxDeadline taxDeadline)
+        {
+            EditingTaxDeadLine = null;
+            TaxDeadlines.Remove(taxDeadline);
+            await databaseService.RemoveTaxDeadLine(taxDeadline);
+            await LoadRows();
+        }
     }
+
 }
