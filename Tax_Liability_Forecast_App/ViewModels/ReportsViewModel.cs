@@ -1,16 +1,14 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Generic;
+using PdfSharp.Drawing;
+using PdfSharp.Fonts;
+using PdfSharp.Pdf;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
 using Tax_Liability_Forecast_App.Services;
+using Tax_Liability_Forecast_App.Utils;
 
 namespace Tax_Liability_Forecast_App.ViewModels
 {
@@ -132,12 +130,43 @@ namespace Tax_Liability_Forecast_App.ViewModels
             if(saveFileDialog.ShowDialog() == true)
             {
                 string filePath = saveFileDialog.FileName;
+                GeneratePDFReport(filePath);
 
                 MessageBox.Show($"File saved at {filePath}");
             }
             else
             {
                 MessageBox.Show("File save operation was cancelled");
+            }
+        }
+
+        private void GeneratePDFReport(string filePath)
+        {
+            try
+            {
+                PdfDocument document = new PdfDocument();
+                document.Info.Title = "Tax Report";
+
+                PdfPage page = document.AddPage();
+
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                GlobalFontSettings.FontResolver = new WindowsFontResolver();
+
+                XFont titleFont = new XFont("Verdana", 16, XFontStyleEx.Bold);
+                XFont regularFont = new XFont("Verdana", 12);
+
+                gfx.DrawString("Tax Report", titleFont, XBrushes.Black, new XPoint(50, 50));
+
+                gfx.DrawString($"Date: {DateTime.Now.ToShortDateString()}", regularFont, XBrushes.Black, new XPoint(50, 80));
+
+
+
+                document.Save(filePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
     }
