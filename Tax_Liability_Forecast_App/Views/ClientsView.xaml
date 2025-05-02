@@ -9,6 +9,7 @@
     <Grid x:Name="Root">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" HorizontalAlignment="Stretch" Margin="10,10,10,0" Background="White">
@@ -19,7 +20,22 @@
             <TextBox Grid.Column="0" Text="Search"></TextBox>
             <TextBlock Grid.Column="1" Text="🔍"></TextBlock>
         </Grid>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Clients1}" HorizontalAlignment="Center" Margin="10"
+        <GroupBox Grid.Row="1" Margin="10" Header="Add client" Foreground="White">
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Margin="80,0,0,0">Name</TextBlock>
+                    <TextBlock Margin="180,0,0,0">Email</TextBlock>
+                    <TextBlock Margin="160,0,0,0">Phone Number</TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <TextBox Width="200px"/>
+                    <TextBox Width="200px" Margin="10,0,0,0"/>
+                    <TextBox Width="200px" Margin="10,0,0,0"/>
+                </StackPanel>
+                <Button Content="Add client"></Button>
+            </StackPanel>
+        </GroupBox>
+        <DataGrid Grid.Row="2" ItemsSource="{Binding Clients}" HorizontalAlignment="Center" Margin="10"
                   AutoGenerateColumns="False" SelectionMode="Single">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Client Name" Binding="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
@@ -30,7 +46,7 @@
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                 <Button Content="Add" Width="40px" HorizontalAlignment="Left" Margin="0,0,0,0" Command="{Binding DataContext.AddBtnClick, ElementName=Root}" CommandParameter="{Binding}"/>
-                                <Button Content="Edit" Width="40px" HorizontalAlignment="Left" Margin="2,0,0,0" Command="{Binding DataContext.EditBtnClick, ElementName=Root}" CommandParameter="{Binding}"/>
+                                <Button Content="{Binding DataContext.EditBtnText, ElementName=Root}" Width="40px" HorizontalAlignment="Left" Margin="2,0,0,0" Command="{Binding DataContext.EditBtnClick, ElementName=Root}" CommandParameter="{Binding}"/>
                                 <Button Content="Delete" Width="40px" HorizontalAlignment="Left" Margin="2,0,0,0" Command="{Binding DataContext.RemoveBtnClick, ElementName=Root}" CommandParameter="{Binding}"/>
                             </StackPanel>
                         </DataTemplate>
