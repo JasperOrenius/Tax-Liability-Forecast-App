@@ -16,6 +16,7 @@ namespace Tax_Liability_Forecast_App.Models
         public string Name { get; set; }
         public decimal Amount { get; set; }
         public bool IsDeductible { get; set; }
+        public DeductionAppliesTo AppliesTo { get; set; }
 
         [NotMapped]
         public bool IsEmpty { get; set; }
@@ -45,5 +46,12 @@ namespace Tax_Liability_Forecast_App.Models
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+    }
+
+    public enum DeductionAppliesTo
+    {
+        Income,
+        Expense,
+        Both
     }
 }

@@ -32,7 +32,8 @@ namespace Tax_Liability_Forecast_App.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    IsDeductible = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsDeductible = table.Column<bool>(type: "INTEGER", nullable: false),
+                    AppliesTo = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,7 +77,8 @@ namespace Tax_Liability_Forecast_App.Migrations
                     Amount = table.Column<decimal>(type: "TEXT", nullable: false),
                     IncomeType = table.Column<string>(type: "TEXT", nullable: false),
                     Type = table.Column<int>(type: "INTEGER", nullable: false),
-                    ClientId = table.Column<Guid>(type: "TEXT", nullable: false)
+                    ClientId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    DeductionTypeId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -87,20 +89,28 @@ namespace Tax_Liability_Forecast_App.Migrations
                         principalTable: "Clients",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Transactions_DeductionTypes_DeductionTypeId",
+                        column: x => x.DeductionTypeId,
+                        principalTable: "DeductionTypes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Transactions_ClientId",
                 table: "Transactions",
                 column: "ClientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Transactions_DeductionTypeId",
+                table: "Transactions",
+                column: "DeductionTypeId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "DeductionTypes");
-
             migrationBuilder.DropTable(
                 name: "TaxBrackets");
 
@@ -112,6 +122,9 @@ namespace Tax_Liability_Forecast_App.Migrations
 
             migrationBuilder.DropTable(
                 name: "Clients");
+
+            migrationBuilder.DropTable(
+                name: "DeductionTypes");
         }
     }
 }

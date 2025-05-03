@@ -22,6 +22,12 @@ namespace Tax_Liability_Forecast_App.DbContexts
                 .WithMany(c => c.Transactions)
                 .HasForeignKey(t => t.ClientId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Transaction>()
+                .HasOne(t => t.DeductionType)
+                .WithMany()
+                .HasForeignKey(t => t.DeductionTypeId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }
