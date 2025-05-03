@@ -11,7 +11,7 @@ using Tax_Liability_Forecast_App.DbContexts;
 namespace Tax_Liability_Forecast_App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250426115120_Initial")]
+    [Migration("20250503091854_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -51,6 +51,9 @@ namespace Tax_Liability_Forecast_App.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("AppliesTo")
+                        .HasColumnType("INTEGER");
 
                     b.Property<bool>("IsDeductible")
                         .HasColumnType("INTEGER");
@@ -117,6 +120,9 @@ namespace Tax_Liability_Forecast_App.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("DeductionTypeId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -132,6 +138,8 @@ namespace Tax_Liability_Forecast_App.Migrations
 
                     b.HasIndex("ClientId");
 
+                    b.HasIndex("DeductionTypeId");
+
                     b.ToTable("Transactions");
                 });
 
@@ -143,7 +151,14 @@ namespace Tax_Liability_Forecast_App.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Tax_Liability_Forecast_App.Models.DeductionType", "DeductionType")
+                        .WithMany()
+                        .HasForeignKey("DeductionTypeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Client");
+
+                    b.Navigation("DeductionType");
                 });
 
             modelBuilder.Entity("Tax_Liability_Forecast_App.Models.Client", b =>

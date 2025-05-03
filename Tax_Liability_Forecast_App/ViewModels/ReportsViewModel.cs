@@ -160,7 +160,10 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
                 gfx.DrawString($"Date: {DateTime.Now.ToShortDateString()}", regularFont, XBrushes.Black, new XPoint(50, 80));
 
-
+                gfx.DrawString($"Total Income: {TotalIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 110));
+                gfx.DrawString($"Total Expenses: {TotalExpenses.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 130));
+                gfx.DrawString($"Net Income: {NetIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 150));
+                gfx.DrawString($"Estimated Tax: {EstimatedTax.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 170));
 
                 document.Save(filePath);
             }

@@ -22,6 +22,9 @@ namespace Tax_Liability_Forecast_App.Models
         public Guid ClientId { get; set; }
         public Client Client { get; set; }
 
+        public Guid? DeductionTypeId { get; set; }
+        public DeductionType? DeductionType { get; set; }
+
         [NotMapped]
         private bool isEditing;
         [NotMapped]
