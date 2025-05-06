@@ -18,6 +18,16 @@ namespace Tax_Liability_Forecast_App.Models
         public bool IsDeductible { get; set; }
         public DeductionAppliesTo AppliesTo { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is DeductionType other && Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
         [NotMapped]
         public bool IsEmpty { get; set; }
 

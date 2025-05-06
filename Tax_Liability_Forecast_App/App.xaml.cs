@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.IO;
 using System.Windows;
 using Tax_Liability_Forecast_App.DbContexts;
 using Tax_Liability_Forecast_App.Services;
@@ -11,7 +12,7 @@ namespace Tax_Liability_Forecast_App
     /// </summary>
     public partial class App : Application
     {
-        private const string connectionString = "Data Source=taxforecast.db";
+        private readonly string connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "taxforecast.db")}";
         private readonly IDatabaseService databaseService;
         private readonly NavigationService navigationService;
 
