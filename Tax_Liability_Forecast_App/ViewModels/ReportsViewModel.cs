@@ -5,8 +5,11 @@ using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
 using Tax_Liability_Forecast_App.Services;
@@ -291,6 +294,29 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        public static BitmapSource RenderVisualToBitmap(FrameworkElement visual, int dpi = 96)
+        {
+            var width = (int)visual.ActualWidth;
+            var height = (int)visual.ActualHeight;
+
+            var renderTarget = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
+            renderTarget.Render(visual);
+
+            return renderTarget;
+        }
+
+        public static MemoryStream ConvertBitmapSourceToStream(BitmapSource bitmapSource)
+        {
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+            var stream = new MemoryStream();
+            encoder.Save(stream);
+            stream.Position = 0;
+
+            return stream;
         }
     }
 }
