@@ -65,8 +65,8 @@
                 <ColumnDefinition Width="1*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
-            <Chart:PieChart Grid.Column="0" Series="{Binding IncomeExpenseSeries}" HoverPushOut="8" Margin="10"/>
-            <Chart:CartesianChart Grid.Column="1" Series="{Binding TaxOverTimeSeries}" LegendLocation="Right">
+            <Chart:PieChart x:Name="IncomeExpenseChart" Grid.Column="0" Series="{Binding IncomeExpenseSeries}" HoverPushOut="8" Margin="10"/>
+            <Chart:CartesianChart x:Name="TaxOverTimeChart" Grid.Column="1" Series="{Binding TaxOverTimeSeries}" LegendLocation="Right">
                 <Chart:CartesianChart.AxisX>
                     <Chart:Axis Title="Month" Labels="{Binding MonthLabels}"/>
                 </Chart:CartesianChart.AxisX>
