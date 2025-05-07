@@ -11,7 +11,7 @@ using Tax_Liability_Forecast_App.DbContexts;
 namespace Tax_Liability_Forecast_App.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250503091854_Initial")]
+    [Migration("20250505143226_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

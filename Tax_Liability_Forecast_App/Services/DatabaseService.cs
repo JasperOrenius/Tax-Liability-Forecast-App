@@ -26,7 +26,7 @@ namespace Tax_Liability_Forecast_App.Services
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
-                return await context.Transactions.Where(t => t.ClientId == clientId).Include(t => t.Client).ToListAsync();
+                return await context.Transactions.Where(t => t.ClientId == clientId).Include(t => t.Client).Include(t => t.DeductionType).ToListAsync();
             }
         }
 
@@ -51,6 +51,7 @@ namespace Tax_Liability_Forecast_App.Services
                     updatedTransaction.Amount = transaction.Amount;
                     updatedTransaction.IncomeType = transaction.IncomeType;
                     updatedTransaction.Type = transaction.Type;
+                    updatedTransaction.DeductionTypeId = transaction.DeductionType != null && transaction.DeductionType.Id != Guid.Empty ? transaction.DeductionType.Id : null;
 
                     await context.SaveChangesAsync();
                 }

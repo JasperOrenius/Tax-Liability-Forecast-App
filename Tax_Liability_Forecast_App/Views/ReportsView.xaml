@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
+             xmlns:Chart="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid Margin="5">
@@ -29,7 +30,7 @@
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="1">
                 <TextBlock Text="Transaction Type:" VerticalAlignment="Center" Foreground="White" FontSize="16" Margin="0,0,5,0"/>
-                <ComboBox ItemsSource="{Binding TransactionTypes}" MinWidth="120"/>
+                <ComboBox ItemsSource="{Binding TransactionTypes}" Text="{Binding SelectedTransactionType, Mode=TwoWay}" MinWidth="120"/>
                 <Button Content="Generate Report" Command="{Binding GenerateReportCommand}" Width="120" Margin="20,0,0,0"/>
             </StackPanel>
         </Grid>
@@ -60,10 +61,25 @@
             </Border>
         </UniformGrid>
         <Grid Grid.Row="2">
-            
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+            <Chart:PieChart Grid.Column="0" Series="{Binding IncomeExpenseSeries}" HoverPushOut="8" Margin="10"/>
+            <Chart:CartesianChart Grid.Column="1" Series="{Binding TaxOverTimeSeries}" LegendLocation="Right">
+                <Chart:CartesianChart.AxisX>
+                    <Chart:Axis Title="Month" Labels="{Binding MonthLabels}"/>
+                </Chart:CartesianChart.AxisX>
+                <Chart:CartesianChart.AxisY>
+                    <Chart:Axis Title="Net Income vs. Tax (€)"/>
+                </Chart:CartesianChart.AxisY>
+            </Chart:CartesianChart>
         </Grid>
-        <DataGrid Grid.Row="3">
-            
+        <DataGrid Grid.Row="3" ItemsSource="{Binding Transactions}" AutoGenerateColumns="False" IsReadOnly="True">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Date" Binding="{Binding Date}" Width="*"/>
+                <DataGridTextColumn Header="Description" Binding="{Binding Description}" Width="*"/>
+            </DataGrid.Columns>
         </DataGrid>
         <Button Grid.Row="4" Content="Export to PDF" Command="{Binding ExportToPDFCommand}" Width="150" HorizontalAlignment="Left" Margin="0,10,0,0"/>
     </Grid>

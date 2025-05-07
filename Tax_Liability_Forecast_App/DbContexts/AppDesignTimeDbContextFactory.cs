@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using System.IO;
 
 namespace Tax_Liability_Forecast_App.DbContexts
 {
@@ -7,7 +8,7 @@ namespace Tax_Liability_Forecast_App.DbContexts
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            DbContextOptions options = new DbContextOptionsBuilder().UseSqlite("Data Source=taxforecast.db").Options;
+            DbContextOptions options = new DbContextOptionsBuilder().UseSqlite($"Data Source={Path.Combine(AppContext.BaseDirectory, "taxforecast.db")}").Options;
             return new AppDbContext(options);
         }
     }

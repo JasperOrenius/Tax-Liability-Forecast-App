@@ -1,10 +1,15 @@
-﻿using Microsoft.Win32;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
+using Microsoft.Win32;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
 using PdfSharp.Pdf;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
 using Tax_Liability_Forecast_App.Services;
@@ -16,8 +21,13 @@ namespace Tax_Liability_Forecast_App.ViewModels
     {
         private readonly IDatabaseService databaseService;
 
+        public SeriesCollection IncomeExpenseSeries { get; set; } = new SeriesCollection();
+        public SeriesCollection TaxOverTimeSeries { get; set; } = new SeriesCollection();
+        public List<string> MonthLabels { get; set; } = new List<string>();
+
         public ObservableCollection<Transaction> Incomes { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Transaction> Expenses { get; set; } = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
 
         public List<String> TransactionTypes { get; } = new List<String> { "All", "Income", "Expense" };
@@ -30,6 +40,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 selectedClient = value;
                 OnPropertyChanged(nameof(SelectedClient));
+            }
+        }
+
+        private string selectedTransactionType;
+        public string SelectedTransactionType
+        {
+            get => selectedTransactionType;
+            set
+            {
+                selectedTransactionType = value;
+                OnPropertyChanged(nameof(SelectedTransactionType));
             }
         }
 
@@ -72,7 +93,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             get => estimatedTax;
             set
             {
-                NetIncome = value;
+                estimatedTax = value;
                 OnPropertyChanged(nameof(EstimatedTax));
             }
         }
@@ -86,6 +107,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             GenerateReportCommand = new RelayCommand(GenerateReport);
             ExportToPDFCommand = new RelayCommand(ExportToPDF);
             LoadClients();
+            SelectedTransactionType = TransactionTypes[0];
         }
 
         private async Task LoadClients()
@@ -103,8 +125,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
         {
             if (SelectedClient == null) return;
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
+            var taxBrackets = await databaseService.FetchAllTaxBrackets();
+            var taxOverTime = new List<(DateTime Month, decimal Income, decimal Tax, decimal Net)>();
+            var taxValues = new ChartValues<decimal>();
+            var netIncomeValues = new ChartValues<decimal>();
+            int currentYear = DateTime.Now.Year;
+            decimal totalNetIncome = 0m;
+            decimal totalEstimatedTax = 0m;
+            MonthLabels.Clear();
             Incomes.Clear();
             Expenses.Clear();
+            Transactions = new ObservableCollection<Transaction>(transactions);
             foreach(var transaction in transactions)
             {
                 if(transaction.Type == TransactionType.Income)
@@ -116,8 +147,100 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     Expenses.Add(transaction);
                 }
             }
+            var incomeExpenseGroup = transactions
+                .GroupBy(t => t.Type)
+                .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
+                .ToList();
+            var monthlyGroups = transactions
+                .Where(t => t.Type == TransactionType.Income && t.Date.Year == currentYear)
+                .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
+                .OrderBy(g => g.Key);
+            var monthlyData = transactions
+                .Where(t => t.Type == TransactionType.Income && t.Date.Year == DateTime.Now.Year)
+                .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
+                .OrderBy(g => g.Key)
+                .Select(g =>
+                {
+                    decimal income = g.Sum(t => t.Amount);
+                    decimal tax = CalculateEstimatedTax(income, taxBrackets.ToList());
+                    decimal netIncome = income - tax;
+                    return new { Date = g.Key, Tax = tax, NetIncome = netIncome };
+                })
+                .ToList();
+
+            foreach(var group in incomeExpenseGroup)
+            {
+                IncomeExpenseSeries.Add(new PieSeries
+                {
+                    Title = group.Type.ToString(),
+                    Values = new ChartValues<decimal> { group.Total }
+                });
+            }
+            foreach(var group in monthlyGroups)
+            {
+                var totalIncome = group.Sum(t => t.Amount);
+                var tax = CalculateEstimatedTax(totalIncome, taxBrackets.ToList());
+                var netIncome = totalIncome - tax;
+                totalNetIncome += netIncome;
+                totalEstimatedTax += tax;
+
+                taxOverTime.Add((group.Key, totalIncome, tax, netIncome));
+            }
+            foreach(var item in monthlyData)
+            {
+                taxValues.Add(item.Tax);
+                netIncomeValues.Add(item.NetIncome);
+                MonthLabels.Add(item.Date.ToString("MMM yyyy"));
+            }
+
+            TaxOverTimeSeries.Clear();
+            TaxOverTimeSeries.Add(new LineSeries
+            {
+                Title = "Tax Owed",
+                Values = taxValues,
+                PointGeometry = DefaultGeometries.Circle,
+                PointGeometrySize = 6
+            });
+            TaxOverTimeSeries.Add(new LineSeries
+            {
+                Title = "Net Income",
+                Values = netIncomeValues,
+                PointGeometry = DefaultGeometries.Square,
+                PointGeometrySize = 6
+            });
+
             TotalIncome = Incomes.Sum(i => i.Amount);
             TotalExpenses = Expenses.Sum(e => e.Amount);
+            NetIncome = totalNetIncome;
+            EstimatedTax = totalEstimatedTax;
+        }
+
+        private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
+        {
+            const decimal defaultTaxRate = 7.38m;
+
+            if(taxBrackets == null || taxBrackets.Count == 0)
+            {
+                return totalIncome * (defaultTaxRate / 100m);
+            }
+
+            var sortedBrackets = taxBrackets.OrderBy(b => b.MinIncome).ToList();
+
+            foreach(var bracket in sortedBrackets)
+            {
+                if(totalIncome >= bracket.MinIncome && totalIncome <= bracket.MaxIncome)
+                {
+                    return totalIncome * (bracket.TaxRate / 100m);
+                }
+            }
+
+            var highestBracket = sortedBrackets.LastOrDefault();
+            if(highestBracket != null && totalIncome > highestBracket.MaxIncome)
+            {
+                return totalIncome * (highestBracket.TaxRate / 100m);
+            }
+
+            return totalIncome * (defaultTaxRate / 100m);
         }
 
         private async Task ExportToPDF()
@@ -171,6 +294,29 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        public static BitmapSource RenderVisualToBitmap(FrameworkElement visual, int dpi = 96)
+        {
+            var width = (int)visual.ActualWidth;
+            var height = (int)visual.ActualHeight;
+
+            var renderTarget = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
+            renderTarget.Render(visual);
+
+            return renderTarget;
+        }
+
+        public static MemoryStream ConvertBitmapSourceToStream(BitmapSource bitmapSource)
+        {
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
+
+            var stream = new MemoryStream();
+            encoder.Save(stream);
+            stream.Position = 0;
+
+            return stream;
         }
     }
 }

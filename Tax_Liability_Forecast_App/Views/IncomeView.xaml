@@ -36,7 +36,7 @@
                     <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}" DisplayMemberPath="Name"/>
                     <DatePicker Grid.Row="1" Grid.Column="1" Margin="0,0,10,10" SelectedDate="{Binding IncomeDate}"/>
                     <ComboBox Grid.Row="1" Grid.Column="2" Margin="0,0,10,10" ItemsSource="{Binding IncomeTypes}" SelectedItem="{Binding SelectedIncomeType, Mode=TwoWay}"/>
-                    <ComboBox Grid.Row="1" Grid.Column="3" Margin="0,0,10,10"/>
+                    <ComboBox Grid.Row="1" Grid.Column="3" Margin="0,0,10,10" ItemsSource="{Binding DeductionTypes}" SelectedItem="{Binding SelectedDeductionType, Mode=TwoWay}" DisplayMemberPath="Name"/>
 
                     <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -113,12 +113,12 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock x:Name="tbType" Text="{Binding IncomeType}"/>
-                                    <ComboBox x:Name="txtType" ItemsSource="{Binding DataContext.IncomeTypes, ElementName=RootGrid}" Text="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <ComboBox x:Name="cbType" ItemsSource="{Binding DataContext.IncomeTypes, ElementName=RootGrid}" Text="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                         <Setter TargetName="tbType" Property="Visibility" Value="Collapsed"/>
-                                        <Setter TargetName="txtType" Property="Visibility" Value="Visible"/>
+                                        <Setter TargetName="cbType" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
@@ -135,6 +135,22 @@
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                         <Setter TargetName="tbAmount" Property="Visibility" Value="Collapsed"/>
                                         <Setter TargetName="txtAmount" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Deduction Type" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbDeductionType" Text="{Binding DeductionType.Name}"/>
+                                    <ComboBox x:Name="cbDeductionType" ItemsSource="{Binding DataContext.DeductionTypes, ElementName=RootGrid}" SelectedItem="{Binding DeductionType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed" DisplayMemberPath="Name"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbDeductionType" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="cbDeductionType" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
