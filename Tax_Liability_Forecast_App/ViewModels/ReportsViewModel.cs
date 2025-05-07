@@ -20,6 +20,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
     public class ReportsViewModel : BaseViewModel
     {
         private readonly IDatabaseService databaseService;
+        private IChartRenderer chartRenderer;
 
         public SeriesCollection IncomeExpenseSeries { get; set; } = new SeriesCollection();
         public SeriesCollection TaxOverTimeSeries { get; set; } = new SeriesCollection();
@@ -108,6 +109,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
             ExportToPDFCommand = new RelayCommand(ExportToPDF);
             LoadClients();
             SelectedTransactionType = TransactionTypes[0];
+        }
+
+        public void SetChartRenderer(IChartRenderer chartRenderer)
+        {
+            this.chartRenderer = chartRenderer;
         }
 
         private async Task LoadClients()
@@ -287,6 +293,22 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 gfx.DrawString($"Total Expenses: {TotalExpenses.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 130));
                 gfx.DrawString($"Net Income: {NetIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 150));
                 gfx.DrawString($"Estimated Tax: {EstimatedTax.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 170));
+
+                var incomeExpenseChart = chartRenderer.CaptureIncomeExpenseChart();
+                var taxOverTimeChart = chartRenderer.CaptureTaxOverTimeChart();
+
+                using var incomeExpenseStream = ConvertBitmapSourceToStream(incomeExpenseChart);
+                using var taxOverTimeStream = ConvertBitmapSourceToStream(taxOverTimeChart);
+
+                var incomeExpenseImg = XImage.FromStream(incomeExpenseStream);
+                var taxOverTimeImg = XImage.FromStream(taxOverTimeStream);
+
+                double maxWidth = page.Width - 100;
+                double incomeExpenseScaleFactor = maxWidth / incomeExpenseImg.PixelWidth;
+                double taxOverTimeScaleFactor = maxWidth / taxOverTimeImg.PixelWidth;
+
+                gfx.DrawImage(incomeExpenseImg, 50, 200, incomeExpenseImg.PixelWidth * incomeExpenseScaleFactor, incomeExpenseImg.PixelHeight * incomeExpenseScaleFactor);
+                gfx.DrawImage(taxOverTimeImg, 50, 370, taxOverTimeImg.PixelWidth * taxOverTimeScaleFactor, taxOverTimeImg.PixelHeight * taxOverTimeScaleFactor);
 
                 document.Save(filePath);
             }

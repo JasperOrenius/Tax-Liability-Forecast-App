@@ -13,8 +13,9 @@ namespace Tax_Liability_Forecast_App
     public partial class App : Application
     {
         private readonly string connectionString = $"Data Source={Path.Combine(AppContext.BaseDirectory, "taxforecast.db")}";
-        private readonly IDatabaseService databaseService;
+        public readonly IDatabaseService databaseService;
         private readonly NavigationService navigationService;
+        public IDatabaseService DatabaseService => databaseService;
 
         public App()
         {
