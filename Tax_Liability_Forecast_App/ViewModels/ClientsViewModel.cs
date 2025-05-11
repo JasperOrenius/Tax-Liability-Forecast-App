@@ -105,7 +105,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         {
             Regex EmailValidation = new Regex("^\\S+@\\S+\\.\\S+$");
             Regex PhoneNumValidation = new Regex("^\\+?\\d{1,4}?[-.\\s]?\\(?\\d{1,3}?\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$");
-            if (string.IsNullOrEmpty(ClientNameInput) || string.IsNullOrEmpty(ClientEmailInput) || string.IsNullOrEmpty(ClientPhoneNumInput))//ClientNameInput == string.Empty || ClientEmailInput == string.Empty || ClientPhoneNumInput == string.Empty)
+            if (string.IsNullOrEmpty(ClientNameInput) || string.IsNullOrEmpty(ClientEmailInput) || string.IsNullOrEmpty(ClientPhoneNumInput))
             {
                 MessageBox.Show("Please fill all fields!!!");
                 return;
