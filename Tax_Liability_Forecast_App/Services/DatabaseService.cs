@@ -51,7 +51,7 @@ namespace Tax_Liability_Forecast_App.Services
                     updatedTransaction.Amount = transaction.Amount;
                     updatedTransaction.IncomeType = transaction.IncomeType;
                     updatedTransaction.Type = transaction.Type;
-                    updatedTransaction.DeductionTypeId = transaction.DeductionType != null && transaction.DeductionType.Id != Guid.Empty ? transaction.DeductionType.Id : null;
+                    updatedTransaction.DeductionTypeId = transaction.DeductionTypeId != null ? transaction.DeductionTypeId : null;
 
                     await context.SaveChangesAsync();
                 }
