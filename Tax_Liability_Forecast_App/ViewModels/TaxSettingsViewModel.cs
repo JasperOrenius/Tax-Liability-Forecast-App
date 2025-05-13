@@ -221,7 +221,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 };
                 await databaseService.CreateTaxDeadLine(newDeadline);
                 TaxDeadlines.Add(newDeadline);
-                TaxDeadlines.Add(new TaxDeadline { IsEmpty = true });
+                TaxDeadlines.Add(new TaxDeadline { IsEmpty = true, DueDate = DateTime.Today});
 
             }
         }
