@@ -145,7 +145,7 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock x:Name="tbDeductionType" Text="{Binding DeductionType.Name}"/>
-                                    <ComboBox x:Name="cbDeductionType" ItemsSource="{Binding DataContext.DeductionTypes, ElementName=RootGrid}" SelectedItem="{Binding DeductionType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed" DisplayMemberPath="Name"/>
+                                    <ComboBox x:Name="cbDeductionType" ItemsSource="{Binding DataContext.DeductionTypes, ElementName=RootGrid}" SelectedValue="{Binding DeductionTypeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" SelectedValuePath="Id" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
