@@ -81,12 +81,24 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
+        private TaxDeadline nextDeadline;
+        public TaxDeadline NextDeadline
+        {
+            get => nextDeadline;
+            set
+            {
+                nextDeadline = value;
+                OnPropertyChanged(nameof(NextDeadline));
+            }
+        }
+
+
         public DashboardViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
             IncomevsExpenseSeries = new SeriesCollection();
             _ = LoadClient();
-            DeadlineText = "0";
+            
         }
 
         private async Task LoadClient()
@@ -160,6 +172,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             var taxBrackets = await databaseService.FetchAllTaxBrackets();
             var taxBracketList = new List<TaxBracket>(taxBrackets);
 
+            var deadlines = await databaseService.FetchAllTaxDeadLines();
+            var upcoming = deadlines
+                .Where(d => !d.IsEmpty && d.DueDate >= DateTime.Today)
+                .OrderBy(d => d.DueDate)
+                .FirstOrDefault();
+
+            DeadlineText = upcoming != null
+                ? $"{upcoming.Period} — {upcoming.DueDate:MMMM dd, yyyy}"
+                : "No upcoming deadlines";
+
+
+            NextDeadline = upcoming;
+
             TransactionList.Clear();
             IncomeList.Clear();
             ExpenseList.Clear();
@@ -179,5 +204,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
             UpdateChart();
         }
+
     }
 }
