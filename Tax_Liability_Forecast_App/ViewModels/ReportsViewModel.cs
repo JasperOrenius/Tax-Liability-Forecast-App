@@ -20,6 +20,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
     public class ReportsViewModel : BaseViewModel
     {
         private readonly IDatabaseService databaseService;
+        private IChartRenderer chartRenderer;
 
         public SeriesCollection IncomeExpenseSeries { get; set; } = new SeriesCollection();
         public SeriesCollection TaxOverTimeSeries { get; set; } = new SeriesCollection();
@@ -108,6 +109,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
             ExportToPDFCommand = new RelayCommand(ExportToPDF);
             LoadClients();
             SelectedTransactionType = TransactionTypes[0];
+        }
+
+        public void SetChartRenderer(IChartRenderer chartRenderer)
+        {
+            this.chartRenderer = chartRenderer;
         }
 
         private async Task LoadClients()
@@ -278,6 +284,10 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
                 XFont titleFont = new XFont("Verdana", 16, XFontStyleEx.Bold);
                 XFont regularFont = new XFont("Verdana", 12);
+                XFont legendFont = new XFont("Verdana", 10);
+
+                int margin = 40;
+                double yOffset = margin;
 
                 gfx.DrawString("Tax Report", titleFont, XBrushes.Black, new XPoint(50, 50));
 
@@ -288,6 +298,30 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 gfx.DrawString($"Net Income: {NetIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 150));
                 gfx.DrawString($"Estimated Tax: {EstimatedTax.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 170));
 
+                var incomeExpenseChart = chartRenderer.CaptureIncomeExpenseChart();
+                var taxOverTimeChart = chartRenderer.CaptureTaxOverTimeChart();
+
+                using var incomeExpenseStream = ConvertBitmapSourceToStream(incomeExpenseChart);
+                using var taxOverTimeStream = ConvertBitmapSourceToStream(taxOverTimeChart);
+
+                incomeExpenseStream.Position = 0;
+                taxOverTimeStream.Position = 0;
+
+                var incomeExpenseImg = XImage.FromStream(incomeExpenseStream);
+                var taxOverTimeImg = XImage.FromStream(taxOverTimeStream);
+
+                double maxWidth = page.Width - 2 * margin - 100;
+                double chartSpacing = 20;
+                double chartMaxHeight = (page.Height - yOffset - chartSpacing - margin) / 2;
+
+                (double width1, double height1) = GetScaledDimensions(incomeExpenseImg.PixelWidth, incomeExpenseImg.PixelHeight, maxWidth, chartMaxHeight);
+                (double width2, double height2) = GetScaledDimensions(taxOverTimeChart.PixelWidth, taxOverTimeChart.PixelHeight, maxWidth, chartMaxHeight);
+
+                gfx.DrawImage(incomeExpenseImg, margin, yOffset, width1, height1);
+                yOffset += height1 + chartSpacing;
+
+                gfx.DrawImage(taxOverTimeImg, margin, yOffset, width2, height2);
+
                 document.Save(filePath);
             }
             catch (Exception ex)
@@ -296,10 +330,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        public static BitmapSource RenderVisualToBitmap(FrameworkElement visual, int dpi = 96)
+        public static BitmapSource RenderVisualToBitmap(FrameworkElement visual, int dpi = 300)
         {
-            var width = (int)visual.ActualWidth;
-            var height = (int)visual.ActualHeight;
+            var width = (int)(visual.ActualWidth * dpi / 96);
+            var height = (int)(visual.ActualHeight * dpi / 96);
+
+            var contentBounds = VisualTreeHelper.GetContentBounds(visual);
+
+            var drawingVisual = new DrawingVisual();
+            using(var drawingContext = drawingVisual.RenderOpen())
+            {
+                var visualBrush = new VisualBrush(visual);
+                drawingContext.DrawRectangle(visualBrush, null, new Rect(new Size(visual.ActualWidth, visual.ActualHeight)));
+            }
 
             var renderTarget = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
             renderTarget.Render(visual);
@@ -317,6 +360,15 @@ namespace Tax_Liability_Forecast_App.ViewModels
             stream.Position = 0;
 
             return stream;
+        }
+
+        private (double, double) GetScaledDimensions(int originalWidth, int originalHeight, double maxWidth, double maxHeight)
+        {
+            double ratioX = maxWidth / originalWidth;
+            double ratioY = maxHeight / originalHeight;
+            double scale = Math.Min(ratioX, ratioY);
+
+            return (originalWidth  * scale, originalHeight * scale);
         }
     }
 }

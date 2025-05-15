@@ -107,6 +107,14 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
+        private readonly DeductionType NotDeductible = new()
+        {
+            Id = Guid.Empty,
+            Name = "Not Deductible",
+            Amount = 0,
+            AppliesTo = DeductionAppliesTo.Both
+        };
+
         public ICommand AddEntryCommand { get; }
         public ICommand EditCommand { get; }
         public ICommand SaveCommand { get; }
@@ -139,7 +147,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 Type = TransactionType.Income,
                 ClientId = SelectedClient.Id,
                 DeductionTypeId = SelectedDeductionType.Id == Guid.Empty ? null : SelectedDeductionType.Id,
-                DeductionType = SelectedDeductionType.Id == Guid.Empty ? null : SelectedDeductionType,
             };
             await databaseService.CreateTransaction(newTransaction);
             Incomes.Add(newTransaction);
@@ -171,9 +178,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
         private async Task LoadDeductionTypes()
         {
             var deductionTypes = await databaseService.FetchAllDeductionTypes();
-            var notDeductible = new DeductionType { Id = Guid.Empty, Name = "Not Deductible", Amount = 0, IsDeductible = false, AppliesTo = DeductionAppliesTo.Both };
             DeductionTypes.Clear();
-            DeductionTypes.Add(notDeductible);
+            DeductionTypes.Add(NotDeductible);
             foreach(var deductionType in deductionTypes)
             {
                 if(deductionType.AppliesTo == DeductionAppliesTo.Income || deductionType.AppliesTo == DeductionAppliesTo.Both)
@@ -194,9 +200,13 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 if(transaction.Type == TransactionType.Income)
                 {
+                    if(transaction.DeductionTypeId == null)
+                    {
+                        transaction.DeductionTypeId = Guid.Empty;
+                    }
                     if(transaction.DeductionType == null)
                     {
-                        transaction.DeductionType = notDeductible;
+                        transaction.DeductionType = NotDeductible;
                     }
                     Incomes.Add(transaction);
                 }
@@ -225,10 +235,9 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task SaveIncome(Transaction transaction)
         {
-            if(transaction.DeductionType?.Id == Guid.Empty)
+            if(transaction.DeductionTypeId == Guid.Empty)
             {
                 transaction.DeductionTypeId = null;
-                transaction.DeductionType = null;
             }
             transaction.IsEditing = false;
             EditingTransaction = null;
@@ -239,6 +248,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
         private async Task DeleteIncome(Transaction transaction)
         {
             EditingTransaction = null;
+            transaction.DeductionTypeId = null;
+            transaction.DeductionType = null;
             Incomes.Remove(transaction);
             await databaseService.DeleteTransaction(transaction);
             await FilterIncomes();

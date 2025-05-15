@@ -51,7 +51,7 @@ namespace Tax_Liability_Forecast_App.Services
                     updatedTransaction.Amount = transaction.Amount;
                     updatedTransaction.IncomeType = transaction.IncomeType;
                     updatedTransaction.Type = transaction.Type;
-                    updatedTransaction.DeductionTypeId = transaction.DeductionType != null && transaction.DeductionType.Id != Guid.Empty ? transaction.DeductionType.Id : null;
+                    updatedTransaction.DeductionTypeId = transaction.DeductionTypeId;
 
                     await context.SaveChangesAsync();
                 }
@@ -62,8 +62,12 @@ namespace Tax_Liability_Forecast_App.Services
         {
             using(AppDbContext context = dbContextFactory.CreateDbContext())
             {
-                context.Transactions.Remove(transaction);
-                await context.SaveChangesAsync();
+                var existing = await context.Transactions.FindAsync(transaction.Id);
+                if(existing != null)
+                {
+                    context.Transactions.Remove(existing);
+                    await context.SaveChangesAsync();
+                }
             }
         }
 
