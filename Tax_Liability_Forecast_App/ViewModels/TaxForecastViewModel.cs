@@ -177,7 +177,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     DataGridSource = Expenses;
                     break;
             }
-            TaxBysMonth(taxBracketList);
+            TaxPerMonth(taxBracketList);
         }
 
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
@@ -257,7 +257,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         // Charts
 
-        public void TaxBysMonth(List<TaxBracket>brackets)
+        public void TaxPerMonth(List<TaxBracket>brackets)
         {
             scollection[0].Values.Clear();
             foreach(decimal d in TaxByMonth)
