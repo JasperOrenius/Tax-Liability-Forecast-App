@@ -20,7 +20,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
     public class ReportsViewModel : BaseViewModel
     {
         private readonly IDatabaseService databaseService;
-        private IChartRenderer chartRenderer;
+        private IChartFactory chartFactory = new ChartFactory();
 
         public SeriesCollection IncomeExpenseSeries { get; set; } = new SeriesCollection();
         public SeriesCollection TaxOverTimeSeries { get; set; } = new SeriesCollection();
@@ -30,8 +30,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
         public ObservableCollection<Transaction> Expenses { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Transaction> Transactions { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
+        private List<TaxBracket> TaxBrackets = new List<TaxBracket>();
 
         public List<String> TransactionTypes { get; } = new List<String> { "All", "Income", "Expense" };
+
+        private bool isReportGenerated = false;
 
         private Client selectedClient;
         public Client SelectedClient
@@ -41,6 +44,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 selectedClient = value;
                 OnPropertyChanged(nameof(SelectedClient));
+            }
+        }
+
+        private int year;
+        public int Year
+        {
+            get => year;
+            set
+            {
+                year = value;
+                OnPropertyChanged(nameof(Year));
             }
         }
 
@@ -111,11 +125,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
             SelectedTransactionType = TransactionTypes[0];
         }
 
-        public void SetChartRenderer(IChartRenderer chartRenderer)
-        {
-            this.chartRenderer = chartRenderer;
-        }
-
         private async Task LoadClients()
         {
             var clients = await databaseService.FetchClientTable();
@@ -129,40 +138,43 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task GenerateReport()
         {
-            if (SelectedClient == null) return;
+            if (SelectedClient == null || Year < 0) return;
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
             var taxBrackets = await databaseService.FetchAllTaxBrackets();
             var taxOverTime = new List<(DateTime Month, decimal Income, decimal Tax, decimal Net)>();
             var taxValues = new ChartValues<decimal>();
             var netIncomeValues = new ChartValues<decimal>();
-            int currentYear = DateTime.Now.Year;
             decimal totalNetIncome = 0m;
             decimal totalEstimatedTax = 0m;
             MonthLabels.Clear();
             Incomes.Clear();
             Expenses.Clear();
-            Transactions = new ObservableCollection<Transaction>(transactions);
+            TaxBrackets = new List<TaxBracket>(taxBrackets);
             foreach(var transaction in transactions)
             {
-                if(transaction.Type == TransactionType.Income)
+                if(transaction.Date.Year == Year)
                 {
-                    Incomes.Add(transaction);
-                }
-                else
-                {
-                    Expenses.Add(transaction);
+                    Transactions.Add(transaction);
+                    if(transaction.Type == TransactionType.Income)
+                    {
+                        Incomes.Add(transaction);
+                    }
+                    else
+                    {
+                        Expenses.Add(transaction);
+                    }
                 }
             }
-            var incomeExpenseGroup = transactions
+            var incomeExpenseGroup = Transactions
                 .GroupBy(t => t.Type)
                 .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
                 .ToList();
-            var monthlyGroups = transactions
-                .Where(t => t.Type == TransactionType.Income && t.Date.Year == currentYear)
+            var monthlyGroups = Transactions
+                .Where(t => t.Type == TransactionType.Income)
                 .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
                 .OrderBy(g => g.Key);
-            var monthlyData = transactions
-                .Where(t => t.Type == TransactionType.Income && t.Date.Year == DateTime.Now.Year)
+            var monthlyData = Transactions
+                .Where(t => t.Type == TransactionType.Income)
                 .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
                 .OrderBy(g => g.Key)
                 .Select(g =>
@@ -219,6 +231,36 @@ namespace Tax_Liability_Forecast_App.ViewModels
             TotalExpenses = Expenses.Sum(e => e.Amount);
             NetIncome = totalNetIncome;
             EstimatedTax = totalEstimatedTax;
+
+            isReportGenerated = true;
+        }
+
+        private (Dictionary<string, decimal> incomeExpenseData, List<(DateTime month, decimal tax, decimal net)> taxOverTimeData) GetChartData(List<Transaction> transactions, List<TaxBracket> taxBrackets)
+        {
+            var incomeExpenseGroup = transactions
+                .GroupBy(t => t.Type)
+                .Select(g => new { Type = g.Key, Total = g.Sum(t => t.Amount) })
+                .ToList();
+
+            var incomeExpenseData = incomeExpenseGroup
+                .ToDictionary(x => x.Type.ToString(), x => x.Total);
+
+            int currentYear = DateTime.Now.Year;
+            var monthlyGroups = transactions
+                .Where(t => t.Type == TransactionType.Income && t.Date.Year == currentYear)
+                .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
+                .OrderBy(g => g.Key);
+
+            var taxOverTimeData = new List<(DateTime month, decimal tax, decimal net)>();
+            foreach (var group in monthlyGroups)
+            {
+                var totalIncome = group.Sum(t => t.Amount);
+                var tax = CalculateEstimatedTax(totalIncome, taxBrackets.ToList());
+                var netIncome = totalIncome - tax;
+                taxOverTimeData.Add((group.Key, tax, netIncome));
+            }
+
+            return (incomeExpenseData, taxOverTimeData);
         }
 
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
@@ -251,6 +293,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async Task ExportToPDF()
         {
+            if(!isReportGenerated)
+            {
+                MessageBox.Show("Generate report first!");
+                return;
+            }
             SaveFileDialog saveFileDialog = new SaveFileDialog
             {
                 Filter = "PDF Files (*.pdf)|*.pdf|All Files (*.*)|*.*",
@@ -259,7 +306,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             if(saveFileDialog.ShowDialog() == true)
             {
                 string filePath = saveFileDialog.FileName;
-                GeneratePDFReport(filePath);
+                GeneratePDFReport(Transactions.ToList(), filePath);
 
                 MessageBox.Show($"File saved at {filePath}");
             }
@@ -269,7 +316,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        private void GeneratePDFReport(string filePath)
+        private void GeneratePDFReport(List<Transaction> transactions, string filePath)
         {
             try
             {
@@ -287,40 +334,114 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 XFont legendFont = new XFont("Verdana", 10);
 
                 int margin = 40;
+                int padding = 10;
                 double yOffset = margin;
 
-                gfx.DrawString("Tax Report", titleFont, XBrushes.Black, new XPoint(50, 50));
+                double pageWidth = page.Width - 100;
 
-                gfx.DrawString($"Date: {DateTime.Now.ToShortDateString()}", regularFont, XBrushes.Black, new XPoint(50, 80));
+                gfx.DrawString("Tax Report", titleFont, XBrushes.Black, new XPoint(50, yOffset));
+                yOffset += 30;
 
-                gfx.DrawString($"Total Income: {TotalIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 110));
-                gfx.DrawString($"Total Expenses: {TotalExpenses.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 130));
-                gfx.DrawString($"Net Income: {NetIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 150));
-                gfx.DrawString($"Estimated Tax: {EstimatedTax.ToString("C")}", regularFont, XBrushes.Black, new XPoint(50, 170));
+                gfx.DrawString($"Date: {DateTime.Now.ToShortDateString()}", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                yOffset += 20;
 
-                var incomeExpenseChart = chartRenderer.CaptureIncomeExpenseChart();
-                var taxOverTimeChart = chartRenderer.CaptureTaxOverTimeChart();
+                gfx.DrawString($"Total Income: {TotalIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                yOffset += 20;
+                gfx.DrawString($"Total Expenses: {TotalExpenses.ToString("C")}", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                yOffset += 20;
+                gfx.DrawString($"Net Income: {NetIncome.ToString("C")}", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                yOffset += 20;
+                gfx.DrawString($"Estimated Tax: {EstimatedTax.ToString("C")}", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                yOffset += 30;
 
-                using var incomeExpenseStream = ConvertBitmapSourceToStream(incomeExpenseChart);
-                using var taxOverTimeStream = ConvertBitmapSourceToStream(taxOverTimeChart);
+                var (incomeExpenseData, taxOverTimeData) = GetChartData(Transactions.ToList(), TaxBrackets);
 
-                incomeExpenseStream.Position = 0;
-                taxOverTimeStream.Position = 0;
+                double availableHeight = page.Height - yOffset;
 
-                var incomeExpenseImg = XImage.FromStream(incomeExpenseStream);
-                var taxOverTimeImg = XImage.FromStream(taxOverTimeStream);
+                double pieChartHeight = availableHeight * 0.4;
+                double lineChartHeight = availableHeight * 0.6;
 
-                double maxWidth = page.Width - 2 * margin - 100;
-                double chartSpacing = 20;
-                double chartMaxHeight = (page.Height - yOffset - chartSpacing - margin) / 2;
+                var incomeExpenseChartBytes = chartFactory.CreateIncomeExpensePieChart(incomeExpenseData, pageWidth, pieChartHeight);
+                var taxOverTimeChartBytes = chartFactory.CreateTaxOverTimeLineChart(taxOverTimeData, pageWidth, lineChartHeight);
 
-                (double width1, double height1) = GetScaledDimensions(incomeExpenseImg.PixelWidth, incomeExpenseImg.PixelHeight, maxWidth, chartMaxHeight);
-                (double width2, double height2) = GetScaledDimensions(taxOverTimeChart.PixelWidth, taxOverTimeChart.PixelHeight, maxWidth, chartMaxHeight);
+                var incomeExpenseChartStream = new MemoryStream();
+                using(var originalStream = new MemoryStream(incomeExpenseChartBytes))
+                {
+                    originalStream.CopyTo(incomeExpenseChartStream);
+                }
+                incomeExpenseChartStream.Position = 0;
+                var incomeExpenseChartImg = XImage.FromStream(incomeExpenseChartStream);
+                double incomeExpenseChartWidth = 400;
+                double incomeExpenseChartHeight = incomeExpenseChartImg.PixelHeight * (incomeExpenseChartWidth / incomeExpenseChartImg.PixelWidth);
+                gfx.DrawImage(incomeExpenseChartImg, margin, yOffset, incomeExpenseChartWidth, incomeExpenseChartHeight);
+                yOffset += incomeExpenseChartHeight + 20;
 
-                gfx.DrawImage(incomeExpenseImg, margin, yOffset, width1, height1);
-                yOffset += height1 + chartSpacing;
+                var taxOverTimeChartStream = new MemoryStream();
+                using(var originalStream = new MemoryStream(taxOverTimeChartBytes))
+                {
+                    originalStream.CopyTo(taxOverTimeChartStream);
+                }
+                taxOverTimeChartStream.Position = 0;
+                var taxOverTimeChartImg = XImage.FromStream(taxOverTimeChartStream);
+                double taxOverTimeChartWidth = 400;
+                double taxOverTimeChartHeight = taxOverTimeChartImg.PixelHeight * (taxOverTimeChartWidth / taxOverTimeChartImg.PixelWidth);
+                gfx.DrawImage(taxOverTimeChartImg, margin, yOffset, taxOverTimeChartWidth, taxOverTimeChartHeight);
+                yOffset += taxOverTimeChartHeight + 30;
 
-                gfx.DrawImage(taxOverTimeImg, margin, yOffset, width2, height2);
+                page = document.AddPage();
+                gfx.Dispose();
+                gfx = XGraphics.FromPdfPage(page);
+                yOffset = margin;
+
+                int maxDateWidth = (int)transactions.Max(t => gfx.MeasureString(t.Date.ToShortDateString(), regularFont).Width);
+                int maxClientWidth = (int)transactions.Max(t => gfx.MeasureString(t.Client.Name, regularFont).Width);
+                int maxDescriptionWidth = (int)transactions.Max(t => gfx.MeasureString(t.Description, regularFont).Width);
+                int maxTypeWidth = (int)transactions.Max(t => gfx.MeasureString(t.Type.ToString(), regularFont).Width);
+                int maxAmountWidth = (int)transactions.Max(t => gfx.MeasureString(t.Amount.ToString("C"), regularFont).Width);
+
+                maxDateWidth += padding;
+                maxClientWidth += padding;
+                maxDescriptionWidth += padding;
+                maxTypeWidth += padding;
+                maxAmountWidth += padding;
+
+                double totalWidth = maxDateWidth + maxClientWidth + maxDescriptionWidth + maxTypeWidth + maxAmountWidth;
+                double scaleFactor = pageWidth / totalWidth;
+
+                double adjustedDateWidth = maxDateWidth * scaleFactor;
+                double adjustedClientWidth = maxClientWidth * scaleFactor;
+                double adjustedDescriptionWidth = maxDescriptionWidth * scaleFactor;
+                double adjustedTypeWidth = maxTypeWidth * scaleFactor;
+                double adjustedAmountWidth = maxAmountWidth * scaleFactor;
+
+                int rowHeight = 20;
+                int bottomMargin = 40;
+                gfx.DrawString("Date", regularFont, XBrushes.Black, new XPoint(margin, yOffset));
+                gfx.DrawString("Client", regularFont, XBrushes.Black, new XPoint(margin + adjustedDateWidth, yOffset));
+                gfx.DrawString("Description", regularFont, XBrushes.Black, new XPoint(margin + adjustedDateWidth + adjustedClientWidth, yOffset));
+                gfx.DrawString("Type", regularFont, XBrushes.Black, new XPoint(margin + adjustedDateWidth + adjustedClientWidth + adjustedDescriptionWidth, yOffset));
+                gfx.DrawString("Amount", regularFont, XBrushes.Black, new XPoint(margin + adjustedDateWidth + adjustedClientWidth + adjustedDescriptionWidth + adjustedTypeWidth, yOffset));
+
+                yOffset += rowHeight;
+                gfx.DrawLine(XPens.Black, margin, yOffset, page.Width - margin, yOffset);
+                yOffset += 20;
+
+                foreach (var transaction in transactions)
+                {
+                    if(yOffset + rowHeight + bottomMargin > page.Height)
+                    {
+                        page = document.AddPage();
+                        gfx = XGraphics.FromPdfPage(page);
+                        yOffset = margin;
+                    }
+                    gfx.DrawString(transaction.Date.ToShortDateString(), regularFont, XBrushes.Black, new XPoint(50, yOffset));
+                    gfx.DrawString(transaction.Client.Name, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth, yOffset));
+                    gfx.DrawString(transaction.Description, regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedClientWidth, yOffset));
+                    gfx.DrawString(transaction.Type.ToString(), regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedClientWidth + adjustedDescriptionWidth, yOffset));
+                    gfx.DrawString(transaction.Amount.ToString(), regularFont, XBrushes.Black, new XPoint(50 + adjustedDateWidth + adjustedClientWidth + adjustedDescriptionWidth + adjustedTypeWidth, yOffset));
+
+                    yOffset += rowHeight;
+                }
 
                 document.Save(filePath);
             }
@@ -328,47 +449,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        public static BitmapSource RenderVisualToBitmap(FrameworkElement visual, int dpi = 300)
-        {
-            var width = (int)(visual.ActualWidth * dpi / 96);
-            var height = (int)(visual.ActualHeight * dpi / 96);
-
-            var contentBounds = VisualTreeHelper.GetContentBounds(visual);
-
-            var drawingVisual = new DrawingVisual();
-            using(var drawingContext = drawingVisual.RenderOpen())
-            {
-                var visualBrush = new VisualBrush(visual);
-                drawingContext.DrawRectangle(visualBrush, null, new Rect(new Size(visual.ActualWidth, visual.ActualHeight)));
-            }
-
-            var renderTarget = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
-            renderTarget.Render(visual);
-
-            return renderTarget;
-        }
-
-        public static MemoryStream ConvertBitmapSourceToStream(BitmapSource bitmapSource)
-        {
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(bitmapSource));
-
-            var stream = new MemoryStream();
-            encoder.Save(stream);
-            stream.Position = 0;
-
-            return stream;
-        }
-
-        private (double, double) GetScaledDimensions(int originalWidth, int originalHeight, double maxWidth, double maxHeight)
-        {
-            double ratioX = maxWidth / originalWidth;
-            double ratioY = maxHeight / originalHeight;
-            double scale = Math.Min(ratioX, ratioY);
-
-            return (originalWidth  * scale, originalHeight * scale);
         }
     }
 }
