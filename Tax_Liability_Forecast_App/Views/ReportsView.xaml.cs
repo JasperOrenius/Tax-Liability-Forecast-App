@@ -22,30 +22,11 @@ namespace Tax_Liability_Forecast_App.Views
     /// <summary>
     /// Interaction logic for ReportsView.xaml
     /// </summary>
-    public partial class ReportsView : UserControl, IChartRenderer
+    public partial class ReportsView : UserControl
     {
         public ReportsView()
         {
             InitializeComponent();
-
-            Loaded += ReportsView_Loaded;
-        }
-
-        private void ReportsView_Loaded(object sender, RoutedEventArgs e)
-        {
-            var viewModel = new ReportsViewModel(((App)Application.Current).DatabaseService);
-            viewModel.SetChartRenderer(this);
-            DataContext = viewModel;
-        }
-
-        public BitmapSource CaptureIncomeExpenseChart()
-        {
-            return ReportsViewModel.RenderVisualToBitmap(IncomeExpenseChart);
-        }
-
-        public BitmapSource CaptureTaxOverTimeChart()
-        {
-            return ReportsViewModel.RenderVisualToBitmap(TaxOverTimeChart);
         }
     }
 }
