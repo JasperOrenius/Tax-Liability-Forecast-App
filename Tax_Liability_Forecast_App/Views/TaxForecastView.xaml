@@ -55,9 +55,13 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Charts:CartesianChart Margin="5" Grid.Column="0">
+            <Charts:CartesianChart Margin="5" Grid.Column="0" Series="{Binding scollection}">
                 <Charts:CartesianChart.AxisX>
-                    <Charts:Axis Title="Month"/>
+                    <Charts:Axis Title="Month" Labels="{Binding labels}">
+                        <Charts:Axis.Separator>
+                            <Charts:Separator Step="1"/>
+                        </Charts:Axis.Separator>
+                    </Charts:Axis>
                 </Charts:CartesianChart.AxisX>
                 <Charts:CartesianChart.AxisY>
                     <Charts:Axis Title="Tax (€)"/>
@@ -66,14 +70,21 @@
             <Charts:PieChart Margin="5" Grid.Column="1"/>
         </Grid>
 
-        <DataGrid Grid.Row="3" AutoGenerateColumns="False" Margin="5">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Income Type" Width="*"/>
-                <DataGridTextColumn Header="Amount" Width="*"/>
-                <DataGridTextColumn Header="Taxable" Width="*"/>
-                <DataGridTextColumn Header="Deducted" Width="*"/>
-                <DataGridTextColumn Header="Tax Owed" Width="*"/>
-            </DataGrid.Columns>
-        </DataGrid>
+        <Grid Grid.Row="3" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20px"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <ComboBox Grid.Row="0" Width="150px" HorizontalAlignment="Left" ItemsSource="{Binding TransactionTypes}" Text="{Binding ComboboxSelectedItem, Mode=TwoWay}"/>
+            <DataGrid Grid.Row="1" Margin="0,5,0,0" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding DataGridSource}">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Income Type" Width="*" Binding="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="Amount" Width="*" Binding="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="Taxable" Width="*"/>
+                    <DataGridTextColumn Header="Deducted" Width="*"/>
+                    <DataGridTextColumn Header="Tax Owed" Width="*"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
     </Grid>
 </UserControl>
