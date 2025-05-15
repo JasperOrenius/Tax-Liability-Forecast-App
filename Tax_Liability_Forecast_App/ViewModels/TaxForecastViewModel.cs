@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LiveCharts;
+using LiveCharts.Wpf;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,6 +21,16 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         public ObservableCollection<Transaction> Incomes { get; set; } = new ObservableCollection<Transaction>();
         public ObservableCollection<Transaction> Expenses { get; set; } = new ObservableCollection<Transaction>();
+        private ObservableCollection<Transaction> dataGridSource = new ObservableCollection<Transaction>();
+        public ObservableCollection<Transaction> DataGridSource
+        {
+            get => dataGridSource;
+            set
+            {
+                dataGridSource = value;
+                OnPropertyChanged(nameof(dataGridSource));
+            }
+        }
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
 
         private Client selectedClient;
@@ -54,7 +66,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
-        public List<string> TransactionTypes { get; } = new List<string> {"All", "Income", "Expense"};
+        public List<string> TransactionTypes { get; } = new List<string> { "All", "Income", "Expense" };
 
         private decimal totalIncome;
         public decimal TotalIncome
@@ -116,7 +128,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             var clients = await databaseService.FetchClientTable();
             Clients.Clear();
             Clients = new ObservableCollection<Client>(clients);
-            if(Clients.Count > 0)
+            if (Clients.Count > 0)
             {
                 SelectedClient = Clients[0];
             }
@@ -128,48 +140,136 @@ namespace Tax_Liability_Forecast_App.ViewModels
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
             var taxBrackets = await databaseService.FetchAllTaxBrackets();
             var taxBracketList = new List<TaxBracket>(taxBrackets);
+            var deductions = await databaseService.FetchAllDeductionTypes();
 
             Incomes.Clear();
             Expenses.Clear();
-            foreach(var transaction in transactions)
+            foreach (var transaction in transactions)
             {
-                if(transaction.Type == TransactionType.Income && transaction.Date.Year == Year)
+                if (transaction.Type == TransactionType.Income && transaction.Date.Year == Year)
                 {
                     Incomes.Add(transaction);
                 }
-                else if(transaction.Type == TransactionType.Expense && transaction.Date.Year == Year)
+                else if (transaction.Type == TransactionType.Expense && transaction.Date.Year == Year)
                 {
                     Expenses.Add(transaction);
                 }
             }
+            TaxableIncome = 0m;
+            TotalDeductions = 0m;
+            List<decimal> taxableIncomeAndTotalDeductions = CalculateTaxableIncome(Incomes.ToList(), taxBracketList, deductions.ToList());
+            TaxableIncome = taxableIncomeAndTotalDeductions[0];
+            TotalDeductions = taxableIncomeAndTotalDeductions[1];
             TotalIncome = Incomes.Sum(i => i.Amount);
-            EstimatedTax = CalculateEstimatedTax(TotalIncome, taxBracketList);
+            EstimatedTax = CalculateEstimatedTax(TaxableIncome, taxBracketList);
+            DataGridSource.Clear();
+            switch (ComboboxSelectedItem)
+            {
+                case "All":
+                    DataGridSource = new ObservableCollection<Transaction>(transactions.Where(t => t.Date.Year == Year));
+                    break;
+                case "Income":
+                    DataGridSource = Incomes;
+                    break;
+                case "Expense":
+                    DataGridSource = Expenses;
+                    break;
+            }
         }
-        
+
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
         {
             const decimal defaultTaxRate = 7.38m;
-            if(taxBrackets == null || taxBrackets.Count == 0)
+            if (taxBrackets == null || taxBrackets.Count == 0)
             {
                 return totalIncome * (defaultTaxRate / 100m);
             }
 
             var sortedBrackets = taxBrackets.OrderBy(b => b.MinIncome).ToList();
-            foreach(var bracket in sortedBrackets)
+            foreach (var bracket in sortedBrackets)
             {
-                if(totalIncome >= bracket.MinIncome && totalIncome <= bracket.MaxIncome)
+                if (totalIncome >= bracket.MinIncome && totalIncome <= bracket.MaxIncome)
                 {
                     return totalIncome * (bracket.TaxRate / 100m);
                 }
             }
 
             var highestBracket = sortedBrackets.LastOrDefault();
-            if(highestBracket != null && totalIncome > highestBracket.MaxIncome)
+            if (highestBracket != null && totalIncome > highestBracket.MaxIncome)
             {
                 return totalIncome * (highestBracket.TaxRate / 100m);
             }
 
             return totalIncome * (defaultTaxRate / 100m);
         }
+
+        private List<decimal> CalculateTaxableIncome(List<Transaction> incomes, List<TaxBracket> taxBrackets, List<DeductionType> deductions)
+        {
+            decimal taxableIncome = 0m;
+            decimal deductionAmount = 0m;
+            List<decimal> taxableIncomeAndDeductionSum = new List<decimal>();
+            if (taxBrackets == null || taxBrackets.Count == 0)
+            {
+                foreach (var transaction in incomes)
+                {
+                    if (transaction.DeductionTypeId != null)
+                    {
+                        DeductionType deduction = deductions.Where(d => d.Id == transaction.DeductionTypeId).First();
+                        taxableIncome += transaction.Amount - deduction.Amount;
+                        deductionAmount += deduction.Amount;
+                    }
+                    else
+                    {
+                        taxableIncome += transaction.Amount;
+                    }
+                }
+            }
+            else
+            {
+                var sortedBrackets = taxBrackets.OrderBy(b => b.MinIncome).ToList();
+                var smallestBracket = sortedBrackets[0];
+                foreach (var transaction in incomes)
+                {
+                    if(transaction.DeductionTypeId != null && transaction.Amount >= smallestBracket.MinIncome)
+                    {
+                        DeductionType deduction = deductions.Where(d => d.Id == transaction.DeductionTypeId).First();
+                        taxableIncome += transaction.Amount - deduction.Amount;
+                        deductionAmount += deduction.Amount;
+                    }
+                    else if (transaction.Amount >= smallestBracket.MinIncome)
+                    {
+                        taxableIncome += transaction.Amount;
+                    }
+                }
+            }
+            taxableIncomeAndDeductionSum.Add(taxableIncome);
+            taxableIncomeAndDeductionSum.Add(deductionAmount);
+            return taxableIncomeAndDeductionSum;
+        }
+
+
+        // Charts
+
+        //public List<decimal> CalculateTaxByMonth(List<Transaction>incomes)
+        //{
+        //    List<decimal> s = new List<decimal>();
+        //    for (int i = 1; i < 12; i++)
+        //    {
+        //        decimal 
+        //        foreach (var transaction in incomes)
+        //        {
+
+        //        }
+        //    }
+        //    return s;
+        //}
+        public SeriesCollection scollection { get; } = new SeriesCollection
+        {
+            new ColumnSeries
+            {
+                Values = new ChartValues<decimal> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+            }
+        };
+        public string[] labels { get; } = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     }
 }
