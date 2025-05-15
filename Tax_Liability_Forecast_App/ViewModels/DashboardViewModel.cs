@@ -13,12 +13,11 @@ namespace Tax_Liability_Forecast_App.ViewModels
     public class DashboardViewModel : BaseViewModel
     {
         public SeriesCollection IncomevsExpenseSeries { get; set; }
-
         List<Transaction> IncomeList { get; set; } = new List<Transaction>();
         List<Transaction> ExpenseList { get; set; } = new List<Transaction>();
         List<Transaction> TransactionList { get; set; } = new List<Transaction>();
-
-        public ChartValues<decimal> TimeForecast { get; set; } = new ChartValues<decimal>();
+        public SeriesCollection TimeForecastSeries { get; set; } = new SeriesCollection();
+        public ObservableCollection<string> TimeLabels { get; set; } = new ObservableCollection<string>();
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
 
         private Client selectedClient;
@@ -44,79 +43,51 @@ namespace Tax_Liability_Forecast_App.ViewModels
         public decimal Income
         {
             get => income;
-            set
-            {
-                income = value;
-                OnPropertyChanged(nameof(Income));
-            }
+            set { income = value; OnPropertyChanged(nameof(Income)); }
         }
 
         public decimal Expense
         {
             get => expense;
-            set
-            {
-                expense = value;
-                OnPropertyChanged(nameof(Expense));
-            }
+            set { expense = value; OnPropertyChanged(nameof(Expense)); }
         }
 
         public decimal EstimatedTax
         {
             get => estimatedTax;
-            set
-            {
-                estimatedTax = value;
-                OnPropertyChanged(nameof(EstimatedTax));
-            }
+            set { estimatedTax = value; OnPropertyChanged(nameof(EstimatedTax)); }
         }
 
         public string DeadlineText
         {
             get => deadlineText;
-            set
-            {
-                deadlineText = value;
-                OnPropertyChanged(nameof(DeadlineText));
-            }
+            set { deadlineText = value; OnPropertyChanged(nameof(DeadlineText)); }
         }
 
         private TaxDeadline nextDeadline;
         public TaxDeadline NextDeadline
         {
             get => nextDeadline;
-            set
-            {
-                nextDeadline = value;
-                OnPropertyChanged(nameof(NextDeadline));
-            }
+            set { nextDeadline = value; OnPropertyChanged(nameof(NextDeadline)); }
         }
-
 
         public DashboardViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
             IncomevsExpenseSeries = new SeriesCollection();
-            _ = LoadClient();
-            
+            LoadClient();
         }
-
         private async Task LoadClient()
         {
             var clients = await databaseService.FetchClientTable();
             Clients = new ObservableCollection<Client>(clients);
-
             OnPropertyChanged(nameof(Clients));
 
             if (Clients.Count > 0)
                 SelectedClient = Clients[0];
         }
-
         private void UpdateChart()
         {
-            if (IncomevsExpenseSeries == null)
-                IncomevsExpenseSeries = new SeriesCollection();
-
             IncomevsExpenseSeries.Clear();
 
             var transactionGroup = TransactionList
@@ -134,15 +105,13 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     IncomevsExpenseSeries.Add(new PieSeries
                     {
                         Title = group.Type.ToString(),
-                        Values = new ChartValues<decimal> { group.Total },
-                        
+                        Values = new ChartValues<decimal> { group.Total }
                     });
                 }
             }
 
             OnPropertyChanged(nameof(IncomevsExpenseSeries));
         }
-
         private decimal CalculateEstimatedTax(decimal income, List<TaxBracket> taxBrackets)
         {
             const decimal defaultTaxRate = 7.38m;
@@ -162,7 +131,6 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
             return income * (defaultTaxRate / 100m);
         }
-
         private async Task GenerateDashboard()
         {
             if (SelectedClient == null)
@@ -170,9 +138,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
             var transactions = await databaseService.GetTransactionsByClientId(SelectedClient.Id);
             var taxBrackets = await databaseService.FetchAllTaxBrackets();
-            var taxBracketList = new List<TaxBracket>(taxBrackets);
-
             var deadlines = await databaseService.FetchAllTaxDeadLines();
+
             var upcoming = deadlines
                 .Where(d => !d.IsEmpty && d.DueDate >= DateTime.Today)
                 .OrderBy(d => d.DueDate)
@@ -182,27 +149,81 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 ? $"{upcoming.Period} — {upcoming.DueDate:MMMM dd, yyyy}"
                 : "No upcoming deadlines";
 
-
             NextDeadline = upcoming;
 
-            TransactionList.Clear();
-            IncomeList.Clear();
-            ExpenseList.Clear();
-
-            foreach (var transaction in transactions)
-            {
-                TransactionList.Add(transaction);
-                if (transaction.Type == TransactionType.Income)
-                    IncomeList.Add(transaction);
-                else if (transaction.Type == TransactionType.Expense)
-                    ExpenseList.Add(transaction);
-            }
+            TransactionList = transactions.ToList();
+            IncomeList = TransactionList.Where(t => t.Type == TransactionType.Income).ToList();
+            ExpenseList = TransactionList.Where(t => t.Type == TransactionType.Expense).ToList();
 
             Income = IncomeList.Sum(i => i.Amount);
             Expense = ExpenseList.Sum(t => t.Amount);
-            EstimatedTax = CalculateEstimatedTax(Income, taxBracketList);
+            EstimatedTax = CalculateEstimatedTax(Income, taxBrackets.ToList());
 
             UpdateChart();
+            GenerateTimeForecast(TransactionList);
+        }
+
+        private void GenerateTimeForecast(List<Transaction> transactions)
+        {
+            TimeForecastSeries.Clear();
+            TimeLabels.Clear();
+
+            var groupedByMonth = transactions
+                .GroupBy(t => new DateTime(t.Date.Year, t.Date.Month, 1))
+                .OrderBy(g => g.Key)
+                .Select(g => new
+                {
+                    Month = g.Key,
+                    Income = g.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount),
+                    Expense = g.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount),
+                    Net = g.Where(t => t.Type == TransactionType.Income).Sum(t => t.Amount) -
+                          g.Where(t => t.Type == TransactionType.Expense).Sum(t => t.Amount)
+                })
+                .ToList();
+
+            System.Diagnostics.Debug.WriteLine("Grouped months: " + groupedByMonth.Count); // add this
+
+            var incomeValues = new ChartValues<decimal>();
+            var expenseValues = new ChartValues<decimal>();
+            var netValues = new ChartValues<decimal>();
+
+            foreach (var item in groupedByMonth)
+            {
+                incomeValues.Add(item.Income);
+                expenseValues.Add(item.Expense);
+                netValues.Add(item.Net);
+                TimeLabels.Add(item.Month.ToString("MMM yyyy"));
+            }
+
+            TimeForecastSeries.Add(new LineSeries
+            {
+                Title = "Income",
+                Values = incomeValues,
+                PointGeometry = DefaultGeometries.Circle,
+                PointGeometrySize = 5
+
+            });
+
+            TimeForecastSeries.Add(new LineSeries
+            {
+                Title = "Expenses",
+                Values = expenseValues,
+                PointGeometry = DefaultGeometries.Circle,
+                PointGeometrySize = 5
+
+            });
+
+            TimeForecastSeries.Add(new LineSeries
+            {
+                Title = "Net",
+                Values = netValues,
+                PointGeometry = DefaultGeometries.Circle,
+                PointGeometrySize = 5
+
+            });
+
+            OnPropertyChanged(nameof(TimeForecastSeries));
+            OnPropertyChanged(nameof(TimeLabels));
         }
 
     }

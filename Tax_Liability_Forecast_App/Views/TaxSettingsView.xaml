@@ -5,10 +5,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views" 
              xmlns:utils="clr-namespace:Tax_Liability_Forecast_App.Utils"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:enums="clr-namespace:Tax_Liability_Forecast_App.Models"
+
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <utils:DecimalConverter x:Key="DecimalConverter"/>
+        <ObjectDataProvider x:Key="DeductionAppliesToValues"
+                    MethodName="GetValues"
+                    ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="enums:DeductionAppliesTo"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -175,12 +185,17 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Is Deductible" Width="*">
+
+                    
+                    <DataGridTemplateColumn Header="Applies To" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock x:Name="tbIsDeductible" Text="{Binding IsDeductible}"/>
-                                    <CheckBox x:Name="dpIsDeductible" IsChecked="{Binding IsDeductible, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBlock x:Name="tbIsDeductible" Text="{Binding IsDeductible}" />
+                                    <ComboBox x:Name="dpIsDeductible"
+                                              ItemsSource="{Binding Source={StaticResource DeductionAppliesToValues}}"
+                                              SelectedItem="{Binding IsDeductible, Mode=TwoWay}"
+                                              Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
@@ -191,6 +206,8 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
+
+
                     <DataGridTemplateColumn Header="Actions" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>

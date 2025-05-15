@@ -1,31 +1,66 @@
 ﻿<UserControl x:Class="Tax_Liability_Forecast_App.Views.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:local="clr-namespace:Tax_Liability_Forecast_App.Views"
              xmlns:Charts="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="1000">
+
+    <Grid Background="#1e1e1e" Margin="20">
         <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Text="Total income:" FontSize="20" Foreground="White" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,40,0,0"/>
-        <TextBlock HorizontalAlignment="Left" Margin="20,80,0,0" Text="Expenses:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="20,120,0,0" Text="Estimated tax:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="20,160,0,0" Text="Next deadline:" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="150,40,0,0" Text="{Binding Income, StringFormat=C}" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="120,80,0,0" Text="{Binding Expense, StringFormat=C}" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="150,120,0,0" Text="{Binding EstimatedTax, StringFormat=C}" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <TextBlock HorizontalAlignment="Left" Margin="160,160,0,0" Text="{Binding DeadlineText}" VerticalAlignment="Top" Foreground="White" FontSize="20"/>
-        <Charts:PieChart Width="200" Height="200" Margin="20,200,0,0" Series="{Binding IncomevsExpenseSeries}" VerticalAlignment="top" HorizontalAlignment="left" HoverPushOut="8"/>
-        <Charts:CartesianChart Width="400" Height="200" Margin="240,200,0,0" VerticalAlignment="top" HorizontalAlignment="Left">
-            <Charts:CartesianChart.Series>
-                <Charts:LineSeries Values="{Binding TimeForecast}"/>
-            </Charts:CartesianChart.Series>
-        </Charts:CartesianChart>
-        <ComboBox HorizontalAlignment="Left" Margin="17,10,0,0" VerticalAlignment="Top" Width="120" DisplayMemberPath="Name" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,0,0,10">
+            <ComboBox Width="150" DisplayMemberPath="Name" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}" Margin="0,0,10,0"/>
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="3*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                <StackPanel Margin="0,0,0,20">
+                    <TextBlock Text="Total income:" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="{Binding Income, StringFormat=C}" FontSize="20" Foreground="White" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Expenses:" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="{Binding Expense, StringFormat=C}" FontSize="20" Foreground="White" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Estimated tax:" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="{Binding EstimatedTax, StringFormat=C}" FontSize="20" Foreground="White" FontWeight="Bold" Margin="0,0,0,10"/>
+
+                    <TextBlock Text="Next deadline:" FontSize="16" Foreground="White"/>
+                    <TextBlock Text="{Binding DeadlineText}" FontSize="20" Foreground="White" FontWeight="Bold"/>
+                </StackPanel>
+
+                <Grid Height="250">
+                    <Charts:PieChart Series="{Binding IncomevsExpenseSeries}" HoverPushOut="8" LegendLocation="Right" Foreground="White" FontSize="14" Background="Transparent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                </Grid>
+            </StackPanel>
+
+            <Charts:CartesianChart Grid.Column="1" Series="{Binding TimeForecastSeries}" Margin="0" Foreground="White">
+                <Charts:CartesianChart.AxisX>
+                    <Charts:Axis Title="Month" Labels="{Binding TimeLabels}">
+                        <Charts:Axis.Separator>
+                            <Charts:Separator Step="1"/>
+                        </Charts:Axis.Separator>
+                    </Charts:Axis>
+                </Charts:CartesianChart.AxisX>
+                <Charts:CartesianChart.AxisY>
+                    <Charts:Axis Title="Amount (€)">
+                        <Charts:Axis.Separator>
+                            <Charts:Separator Step="500"/>
+                        </Charts:Axis.Separator>
+                    </Charts:Axis>
+                </Charts:CartesianChart.AxisY>
+            </Charts:CartesianChart>
+
+        </Grid>
     </Grid>
 </UserControl>
