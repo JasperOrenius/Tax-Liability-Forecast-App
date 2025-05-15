@@ -17,6 +17,8 @@ namespace Tax_Liability_Forecast_App.Models
         public decimal Amount { get; set; }
         public bool IsDeductible { get; set; }
         public DeductionAppliesTo AppliesTo { get; set; }
+        
+
 
         public override bool Equals(object? obj)
         {
