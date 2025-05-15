@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
@@ -41,6 +42,19 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 OnPropertyChanged(nameof(Year));
             }
         }
+
+        private string comboboxSelectedItem;
+        public string ComboboxSelectedItem
+        {
+            get => comboboxSelectedItem;
+            set
+            {
+                comboboxSelectedItem = value;
+                OnPropertyChanged(nameof(ComboboxSelectedItem));
+            }
+        }
+
+        public List<string> TransactionTypes { get; } = new List<string> {"All", "Income", "Expense"};
 
         private decimal totalIncome;
         public decimal TotalIncome
@@ -94,6 +108,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             GenerateForecastCommand = new RelayCommand(GenerateForecast);
             LoadClients();
             Year = DateTime.Now.Year;
+            ComboboxSelectedItem = TransactionTypes[0];
         }
 
         private async Task LoadClients()
@@ -128,7 +143,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 }
             }
             TotalIncome = Incomes.Sum(i => i.Amount);
-            TaxableIncome = CalculateEstimatedTax(TotalIncome, taxBracketList);
+            EstimatedTax = CalculateEstimatedTax(TotalIncome, taxBracketList);
         }
         
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
