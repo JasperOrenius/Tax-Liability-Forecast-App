@@ -7,6 +7,9 @@
              xmlns:utils="clr-namespace:Tax_Liability_Forecast_App.Utils"
              mc:Ignorable="d" 
              d:DesignHeight="550" d:DesignWidth="800">
+    <UserControl.Resources>
+        <utils:DecimalConverter x:Key="DecimalConverter"/>
+    </UserControl.Resources>
     <Grid x:Name="RootGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -33,7 +36,7 @@
 
                     <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,10,10" ItemsSource="{Binding Clients}" SelectedItem="{Binding SelectedClient, Mode=TwoWay}" DisplayMemberPath="Name"/>
                     <DatePicker Grid.Row="1" Grid.Column="1" Margin="0,0,10,10" SelectedDate="{Binding ExpenseDate}"/>
-                    <ComboBox Grid.Row="1" Grid.Column="2" Margin="0,0,10,10"/>
+                    <ComboBox Grid.Row="1" Grid.Column="2" Margin="0,0,10,10" ItemsSource="{Binding DeductionTypes}" SelectedItem="{Binding SelectedDeductionType, Mode=TwoWay}" DisplayMemberPath="Name"/>
 
                     <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Margin="0,0,0,10">
                         <Grid.ColumnDefinitions>
@@ -50,15 +53,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Row="3" Grid.Column="0" Text="Amount:" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <TextBox Grid.Row="3" Grid.Column="1">
-                            <TextBox.Text>
-                                <Binding Path="Amount" UpdateSourceTrigger="PropertyChanged" ValidatesOnDataErrors="True" NotifyOnValidationError="True">
-                                    <Binding.ValidationRules>
-                                        <utils:DecimalValidationRule/>
-                                    </Binding.ValidationRules>
-                                </Binding>
-                            </TextBox.Text>
-                        </TextBox>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Amount, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}"/>
                     </Grid>
                     <Button Content="Add Entry" Command="{Binding AddEntryCommand}" Grid.Row="3" Grid.Column="2" Margin="5,5,10,5"/>
                 </Grid>
@@ -109,12 +104,28 @@
                             <DataTemplate>
                                 <Grid>
                                     <TextBlock x:Name="tbAmount" Text="{Binding Amount}"/>
-                                    <TextBox x:Name="txtAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Visibility="Collapsed"/>
+                                    <TextBox x:Name="txtAmount" Text="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource DecimalConverter}}" Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
                                         <Setter TargetName="tbAmount" Property="Visibility" Value="Collapsed"/>
                                         <Setter TargetName="txtAmount" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Header="Deduction Type" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <TextBlock x:Name="tbDeductionType" Text="{Binding DeductionType.Name}"/>
+                                    <ComboBox x:Name="cbDeductionType" ItemsSource="{Binding DataContext.DeductionTypes, ElementName=RootGrid}" SelectedValue="{Binding DeductionTypeId, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Name" SelectedValuePath="Id" Visibility="Collapsed"/>
+                                </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                        <Setter TargetName="tbDeductionType" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="cbDeductionType" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
