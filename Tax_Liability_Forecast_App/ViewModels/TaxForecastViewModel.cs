@@ -112,6 +112,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
+        public List<decimal> TaxByMonth = [0,0,0,0,0,0,0,0,0,0,0,0];
+
         public ICommand GenerateForecastCommand { get; }
 
         public TaxForecastViewModel(IDatabaseService databaseService)
@@ -175,6 +177,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     DataGridSource = Expenses;
                     break;
             }
+            TaxPerMonth(taxBracketList);
         }
 
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
@@ -215,11 +218,13 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     if (transaction.DeductionTypeId != null)
                     {
                         DeductionType deduction = deductions.Where(d => d.Id == transaction.DeductionTypeId).First();
+                        TaxByMonth[transaction.Date.Month-1] += transaction.Amount-deduction.Amount;
                         taxableIncome += transaction.Amount - deduction.Amount;
                         deductionAmount += deduction.Amount;
                     }
                     else
                     {
+                        TaxByMonth[transaction.Date.Month-1] += transaction.Amount;
                         taxableIncome += transaction.Amount;
                     }
                 }
@@ -233,11 +238,13 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     if(transaction.DeductionTypeId != null && transaction.Amount >= smallestBracket.MinIncome)
                     {
                         DeductionType deduction = deductions.Where(d => d.Id == transaction.DeductionTypeId).First();
+                        TaxByMonth[transaction.Date.Month-1] += transaction.Amount-deduction.Amount;
                         taxableIncome += transaction.Amount - deduction.Amount;
                         deductionAmount += deduction.Amount;
                     }
                     else if (transaction.Amount >= smallestBracket.MinIncome)
                     {
+                        TaxByMonth[transaction.Date.Month-1] += transaction.Amount;
                         taxableIncome += transaction.Amount;
                     }
                 }
@@ -250,19 +257,15 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         // Charts
 
-        //public List<decimal> CalculateTaxByMonth(List<Transaction>incomes)
-        //{
-        //    List<decimal> s = new List<decimal>();
-        //    for (int i = 1; i < 12; i++)
-        //    {
-        //        decimal 
-        //        foreach (var transaction in incomes)
-        //        {
-
-        //        }
-        //    }
-        //    return s;
-        //}
+        public void TaxPerMonth(List<TaxBracket>brackets)
+        {
+            scollection[0].Values.Clear();
+            foreach(decimal d in TaxByMonth)
+            {
+                decimal estimatedTaxPerMonth = CalculateEstimatedTax(d, brackets);
+                scollection[0].Values.Add(estimatedTaxPerMonth);
+            }
+        }
         public SeriesCollection scollection { get; } = new SeriesCollection
         {
             new ColumnSeries
