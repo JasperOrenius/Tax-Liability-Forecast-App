@@ -122,6 +122,10 @@ namespace Tax_Liability_Forecast_App.ViewModels
             GenerateForecastCommand = new RelayCommand(GenerateForecast);
             LoadClients();
             Year = DateTime.Now.Year;
+            TotalIncome = 0m;
+            TaxableIncome = 0m;
+            TotalDeductions = 0m;
+            EstimatedTax = 0m;
             ComboboxSelectedItem = TransactionTypes[0];
         }
 
@@ -178,6 +182,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
                     break;
             }
             TaxPerMonth(taxBracketList);
+            InsertDataToPieChart(TaxableIncome, TotalDeductions, EstimatedTax);
         }
 
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
@@ -274,5 +279,34 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         };
         public string[] labels { get; } = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        public void InsertDataToPieChart(decimal taxableIncome, decimal deductions, decimal tax)
+        {
+            scollection2[0].Values.Clear();
+            scollection2[1].Values.Clear();
+            scollection2[2].Values.Clear();
+            scollection2[0].Values.Add(taxableIncome);
+            scollection2[1].Values.Add(deductions);
+            scollection2[2].Values.Add(tax);
+        }
+        public SeriesCollection scollection2 { get; } = new SeriesCollection
+        {
+            new PieSeries
+            {
+                Values = new ChartValues<decimal> {0},
+                Title = "Taxable income"
+            },
+            new PieSeries
+            {
+                Values = new ChartValues<decimal> {0},
+                Title = "Deductions"
+                
+            },
+            new PieSeries
+            {
+                Values = new ChartValues<decimal> {0},
+                Title = "Tax"
+            }
+        };
     }
 }
