@@ -35,17 +35,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 OnPropertyChanged(nameof(EditBtnText));
             }
         }
-
-        private ObservableCollection<Client> clients = new ObservableCollection<Client>();
-        public ObservableCollection<Client> Clients
-        {
-            get => clients;
-            set
-            {
-                clients = value;
-                OnPropertyChanged(nameof(Clients));
-            }
-        }
+        private ObservableCollection<Client> clients { get; set; } = new ObservableCollection<Client>();
+        public ObservableCollection<Client> FilteredClients { get; set; } = new ObservableCollection<Client>();
         private string clientNameInput;
         private string clientEmailInput;
         private string clientPhoneNumInput;
@@ -89,6 +80,18 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
+        private string searchBoxText;
+        public string SearchBoxText
+        {
+            get => searchBoxText;
+            set
+            {
+                searchBoxText = value;
+                OnPropertyChanged(nameof(SearchBoxText));
+                FilterClients();
+            }
+        }
+
         public ClientsViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
@@ -102,16 +105,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
 
         private async void FetchTable()
         {
-            Clients.Clear();
+            clients.Clear();
             try
             {
                 var result = await databaseService.FetchClientTable();
-                Clients = new ObservableCollection<Client>(result);
+                clients = new ObservableCollection<Client>(result);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
+            FilterClients();
         }
 
         async Task AddBtnClickFunc()
@@ -184,6 +188,16 @@ namespace Tax_Liability_Forecast_App.ViewModels
             EditingClient = null;
             await databaseService.UpdateClient(client);
             FetchTable();
+        }
+
+        private void FilterClients()
+        {
+            List<Client> filteredClients = clients.Where(c => string.IsNullOrEmpty(searchBoxText) || c.Name.Contains(searchBoxText, StringComparison.OrdinalIgnoreCase)).ToList();
+            FilteredClients.Clear();
+            foreach (Client client in filteredClients)
+            {
+                FilteredClients.Add(client);
+            }
         }
     }
 }
