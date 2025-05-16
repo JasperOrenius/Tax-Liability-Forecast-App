@@ -172,6 +172,7 @@ namespace Tax_Liability_Forecast_App.Services
                     updatedDeductionType.Name = deductionType.Name;
                     updatedDeductionType.Amount = deductionType.Amount;
                     updatedDeductionType.IsDeductible = deductionType.IsDeductible;
+                    updatedDeductionType.AppliesTo = deductionType.AppliesTo;
                     await context.SaveChangesAsync();
                 }
             }
