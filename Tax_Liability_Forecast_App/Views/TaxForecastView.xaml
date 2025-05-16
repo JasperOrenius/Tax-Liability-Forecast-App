@@ -67,7 +67,7 @@
                     <Charts:Axis Title="Tax (€)"/>
                 </Charts:CartesianChart.AxisY>
             </Charts:CartesianChart>
-            <Charts:PieChart Margin="5" Grid.Column="1"/>
+            <Charts:PieChart Margin="5" Grid.Column="1" Series="{Binding scollection2}" LegendLocation="Bottom"/>
         </Grid>
 
         <Grid Grid.Row="3" Margin="5">
