@@ -23,6 +23,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
         public ICommand AddBtnClick { get; }
         public ICommand RemoveBtnClick { get; }
         public ICommand EditBtnClick { get; }
+        public ICommand SaveBtnClick { get; }
 
         private string editBtnText;
         public string EditBtnText
@@ -77,12 +78,24 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
         }
 
+        private Client? editingClient;
+        public Client? EditingClient
+        {
+            get => editingClient;
+            set
+            {
+                editingClient = value;
+                OnPropertyChanged(nameof(EditingClient));
+            }
+        }
+
         public ClientsViewModel(IDatabaseService databaseService)
         {
             this.databaseService = databaseService;
             AddBtnClick = new RelayCommand(AddBtnClickFunc);
             RemoveBtnClick = new ClientCommand(RemoveBtnClickFunc);
-            EditBtnClick = new RelayCommand(EditBtnClickFunc);
+            EditBtnClick = new ClientCommand(EditBtnClickFunc);
+            SaveBtnClick = new ClientCommand(SaveBtnClickFunc);
             EditBtnText = "Edit";
             FetchTable();
         }
@@ -156,19 +169,20 @@ namespace Tax_Liability_Forecast_App.ViewModels
         }
 
         private bool clicked = true;
-        private async Task EditBtnClickFunc()
+        private async Task EditBtnClickFunc(Client client)
         {
-            if (clicked)
+            if(EditingClient == null)
             {
-                editBtnText = "Save";
-                clicked = false;
+                client.IsEditing = true;
+                EditingClient = client;
             }
-            else
-            {
-                editBtnText = "Edit";
-                clicked = true;
-            }
+        }
 
+        private async Task SaveBtnClickFunc(Client client)
+        {
+            client.IsEditing = false;
+            EditingClient = null;
+            await databaseService.UpdateClient(client);
             FetchTable();
         }
     }

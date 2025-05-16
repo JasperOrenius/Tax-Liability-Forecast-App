@@ -19,6 +19,7 @@ namespace Tax_Liability_Forecast_App.Services
         //Client
         Task <IEnumerable<Client>> FetchClientTable();
         Task AddClient(Client recordToAdd);
+        Task UpdateClient(Client client);
         Task RemoveClient(Client recordToRemove);
 
         //Tax Brackets
