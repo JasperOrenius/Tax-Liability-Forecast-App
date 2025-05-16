@@ -67,7 +67,7 @@
                     <Charts:Axis Title="Tax (€)"/>
                 </Charts:CartesianChart.AxisY>
             </Charts:CartesianChart>
-            <Charts:PieChart Margin="5" Grid.Column="1" Series="{Binding scollection2}" LegendLocation="Bottom"/>
+            <Charts:PieChart Margin="5" Grid.Column="1" Series="{Binding scollection2}" LegendLocation="Bottom" Foreground="White"/>
         </Grid>
 
         <Grid Grid.Row="3" Margin="5">
@@ -76,13 +76,13 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <ComboBox Grid.Row="0" Width="150px" HorizontalAlignment="Left" ItemsSource="{Binding TransactionTypes}" Text="{Binding ComboboxSelectedItem, Mode=TwoWay}"/>
-            <DataGrid Grid.Row="1" Margin="0,5,0,0" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding DataGridSource}">
+            <DataGrid Grid.Row="1" Margin="0,5,0,0" AutoGenerateColumns="False" IsReadOnly="True" ItemsSource="{Binding DataGridSource2}">
                 <DataGrid.Columns>
-                    <DataGridTextColumn Header="Income Type" Width="*" Binding="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="Income Type/Expense" Width="*" Binding="{Binding IncomeType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                     <DataGridTextColumn Header="Amount" Width="*" Binding="{Binding Amount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                    <DataGridTextColumn Header="Taxable" Width="*"/>
-                    <DataGridTextColumn Header="Deducted" Width="*"/>
-                    <DataGridTextColumn Header="Tax Owed" Width="*"/>
+                    <DataGridTextColumn Header="Taxable" Width="*" Binding="{Binding IsTaxable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="Deducted" Width="*" Binding="{Binding IsDeducted, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                    <DataGridTextColumn Header="Tax Owed" Width="*" Binding="{Binding TaxOwed, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
                 </DataGrid.Columns>
             </DataGrid>
         </Grid>

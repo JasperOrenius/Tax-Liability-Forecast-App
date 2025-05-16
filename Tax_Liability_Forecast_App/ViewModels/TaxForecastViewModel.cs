@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using Tax_Liability_Forecast_App.Commands;
 using Tax_Liability_Forecast_App.Models;
 using Tax_Liability_Forecast_App.Services;
@@ -29,6 +30,17 @@ namespace Tax_Liability_Forecast_App.ViewModels
             {
                 dataGridSource = value;
                 OnPropertyChanged(nameof(dataGridSource));
+            }
+        }
+
+        private ObservableCollection<DataGridData> datagridSource2 = new ObservableCollection<DataGridData>();
+        public ObservableCollection <DataGridData> DataGridSource2
+        {
+            get => datagridSource2;
+            set
+            {
+                datagridSource2 = value;
+                OnPropertyChanged(nameof(datagridSource2));
             }
         }
         public ObservableCollection<Client> Clients { get; set; } = new ObservableCollection<Client>();
@@ -183,6 +195,12 @@ namespace Tax_Liability_Forecast_App.ViewModels
             }
             TaxPerMonth(taxBracketList);
             InsertDataToPieChart(TaxableIncome, TotalDeductions, EstimatedTax);
+
+            DataGridSource2.Clear();
+            foreach (var transaction in DataGridSource)
+            {
+                DataGridSource2.Add(CreateDatagridRowData(transaction.IncomeType, transaction.Amount, transaction?.DeductionTypeId, taxBracketList, deductions.ToList()));
+            }
         }
 
         private decimal CalculateEstimatedTax(decimal totalIncome, List<TaxBracket> taxBrackets)
@@ -294,19 +312,87 @@ namespace Tax_Liability_Forecast_App.ViewModels
             new PieSeries
             {
                 Values = new ChartValues<decimal> {0},
-                Title = "Taxable income"
+                Title = "Taxable income",
+                Fill = (SolidColorBrush)new BrushConverter().ConvertFrom("#3498db")
             },
             new PieSeries
             {
                 Values = new ChartValues<decimal> {0},
-                Title = "Deductions"
-                
+                Title = "Deductions",
+                Fill = (SolidColorBrush)new BrushConverter().ConvertFrom("#f1c40f")
+
             },
             new PieSeries
             {
                 Values = new ChartValues<decimal> {0},
-                Title = "Tax"
+                Title = "Tax",
+                Fill = (SolidColorBrush)new BrushConverter().ConvertFrom("#e74c3c")
             }
         };
+
+        //Datagrid
+        private bool CheckIfTaxable(decimal amount, List<TaxBracket> brackets)
+        {
+            if (brackets == null || brackets.Count == 0)
+            {
+                return true;
+            }
+            var smallestBracket = brackets.OrderBy(b => b.MinIncome).ToList()[0];
+            if (amount >= smallestBracket.MinIncome)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private DataGridData CreateDatagridRowData(string incomeType, decimal amount, Guid? deductionID, List<TaxBracket> brackets, List<DeductionType> deductions)
+        {
+            DataGridData data = new DataGridData();
+            data.Amount = amount;
+            if (CheckIfTaxable(amount, brackets))
+            {
+                data.IsTaxable = true;
+                if (deductionID == null)
+                {
+                    data.IsDeducted = false;
+                    data.TaxOwed = Math.Round(CalculateEstimatedTax(amount, brackets), 2);
+                }
+                else
+                {
+                    data.IsDeducted = true;
+                    DeductionType deduction = deductions.Where(d => d.Id == deductionID).First();
+                    data.TaxOwed = Math.Round(CalculateEstimatedTax(amount - deduction.Amount, brackets), 2);
+                }
+            }
+            else
+            {
+                data.IsTaxable = false;
+            }
+            if (incomeType == string.Empty)
+            {
+                data.IncomeType = "Expense";
+                data.TaxOwed = 0m;
+                data.IsTaxable = false;
+            }
+            else
+            {
+                data.IncomeType = incomeType;
+            }
+            return data;
+        }
+
+        //Help class for datagrid
+
+        public class DataGridData
+        {
+            public string IncomeType { get; set; }
+            public decimal Amount { get; set; }
+            public bool IsTaxable { get; set; }
+            public bool IsDeducted { get; set; }
+            public decimal TaxOwed { get; set; }
+        }
     }
 }
