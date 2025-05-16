@@ -174,7 +174,8 @@ namespace Tax_Liability_Forecast_App.ViewModels
                 Id = Guid.NewGuid(),
                 Name = deductionType.Name,
                 Amount = deductionType.Amount,
-                IsDeductible = deductionType.IsDeductible,
+                IsDeductible = true,
+                AppliesTo = deductionType.AppliesTo,
                 IsEmpty = false
             };
             await databaseService.CreateDeductionType(newDeduction);

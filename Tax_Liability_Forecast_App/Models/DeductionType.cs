@@ -62,8 +62,8 @@ namespace Tax_Liability_Forecast_App.Models
 
     public enum DeductionAppliesTo
     {
+        Both,
         Income,
         Expense,
-        Both
     }
 }

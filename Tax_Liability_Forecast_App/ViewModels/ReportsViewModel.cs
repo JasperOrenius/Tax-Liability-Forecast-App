@@ -123,6 +123,7 @@ namespace Tax_Liability_Forecast_App.ViewModels
             ExportToPDFCommand = new RelayCommand(ExportToPDF);
             LoadClients();
             SelectedTransactionType = TransactionTypes[0];
+            Year = DateTime.Today.Year;
         }
 
         private async Task LoadClients()

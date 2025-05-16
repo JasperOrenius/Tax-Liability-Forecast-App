@@ -191,16 +191,16 @@
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <TextBlock x:Name="tbIsDeductible" Text="{Binding IsDeductible}" />
-                                    <ComboBox x:Name="dpIsDeductible"
+                                    <TextBlock x:Name="tbDeductionAppliesTo" Text="{Binding AppliesTo}" />
+                                    <ComboBox x:Name="dpDeductionAppliesTo"
                                               ItemsSource="{Binding Source={StaticResource DeductionAppliesToValues}}"
-                                              SelectedItem="{Binding IsDeductible, Mode=TwoWay}"
+                                              SelectedValue="{Binding AppliesTo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                               Visibility="Collapsed"/>
                                 </Grid>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsEditing}" Value="True">
-                                        <Setter TargetName="tbIsDeductible" Property="Visibility" Value="Collapsed"/>
-                                        <Setter TargetName="dpIsDeductible" Property="Visibility" Value="Visible"/>
+                                        <Setter TargetName="tbDeductionAppliesTo" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="dpDeductionAppliesTo" Property="Visibility" Value="Visible"/>
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
